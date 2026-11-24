@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Node / frontend
+node_modules/
+web/dist/
+
+# Dados brutos da B3 e de outras fontes: nunca versionar (termos de uso)
+data/raw/
+data/cache/
+*.parquet
+
+# Ambiente
+.env
+.env.*
+.DS_Store
+.idea/
+.vscode/
