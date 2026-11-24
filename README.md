@@ -23,8 +23,8 @@ Terminal de análise da curva de juros pré brasileira (DI1). Ele monta a curva 
 | Fase | Status |
 |---|---|
 | Design (21 telas, design system, metodologia) | ✅ |
-| 0 · Fundação (estrutura, ferramentas, CI) | 🔄 |
-| 1 · Motor de cálculo | ⏳ |
+| 0 · Fundação (estrutura, ferramentas, CI) | ✅ |
+| 1 · Motor de cálculo | 🔄 |
 | 2 · Dados reais | ⏳ |
 | 3 · Atualização diária automática | ⏳ |
 | 4 · Site no ar (Overview e Curva DI) | ⏳ |

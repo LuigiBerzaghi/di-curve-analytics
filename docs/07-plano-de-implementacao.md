@@ -109,7 +109,7 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 | `engine/scenarios.py` | Paralelo, inclinação, macro, personalizado | Choque zero → ΔPV zero; simetria aproximada para choques pequenos |
 | `engine/alm.py` | Gap, ΔEVE, ΔNII, duration gap | Balanço casado → ΔEVE ≈ 0 |
 - Incluir casos de PU conferidos à mão como testes.
-- **Pronto quando:** todos os testes passam e o motor reproduz os números do protótipo com a curva ilustrativa.
+- **Pronto quando:** todos os testes passam e o motor bate com as referências externas (PYield e calendário ANBIMA do bizdays).
 
 ### Fase 2 — Dados reais · ~10 h
 - `ingest/b3_di1.py`: ajustes do dia e backfill de 250 pregões.
@@ -207,8 +207,9 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 | Fase | Status |
 |---|---|
 | Design (21 telas, design system, metodologia) | ✅ Concluída |
-| 0 — Fundação | 🔄 Em andamento (este PR) |
-| 1 a 7 | — |
+| 0 — Fundação | ✅ Concluída (PR #2) |
+| 1 — Motor de cálculo | 🔄 Em revisão (PR da fase 1) |
+| 2 a 7 | — |
 
 ## Fontes
 - PYield (coleta B3/ANBIMA/BCB, intradiário com 15 min de atraso): https://pypi.org/project/PYield
