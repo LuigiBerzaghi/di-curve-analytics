@@ -15,6 +15,10 @@ dependencies = [
     "pandas>=2.2",
 ]
 
+[project.scripts]
+dicurve-atualizar = "dicurve.ingest.atualizar:main"
+dicurve-backfill = "dicurve.ingest.backfill:main"
+
 [project.optional-dependencies]
 data = [
     "pyield",
@@ -29,6 +33,7 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.10",
     "pandas-stubs",
+    "types-requests",
     "pre-commit>=3.7",
     # referências externas usadas nos testes (calendário ANBIMA, flat-forward, forward)
     "bizdays",

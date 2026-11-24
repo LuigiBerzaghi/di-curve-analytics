@@ -22,3 +22,8 @@
 | 18 | 24/11/2026 | Usar a lista de feriados vigente na data-base (20/11 só a partir de 26/12/2023) | Um DU calculado antes da lei não descontava o 20/11; sem essa regra os PUs históricos não batem. Mesma convenção do PYield. |
 | 19 | 24/11/2026 | Key rate com alocação triangular, em vez de vértice mais próximo | A soma dos key rates fica exatamente igual ao DV01 paralelo. |
 | 20 | 24/11/2026 | Critério de pronto da Fase 1: validação contra PYield e bizdays, não contra o protótipo | Uma referência externa independente é uma prova mais forte que o próprio protótipo. |
+| 21 | 24/11/2026 | Séries do BCB: 4389 (CDI anualizado) e 432 (meta Selic), em janelas de até 10 anos | Limite da API SGS; as duas séries cobrem o carrego e a âncora curta da curva. |
+| 22 | 24/11/2026 | Verificações com gravidade: "erro" bloqueia o dia, "alerta" só registra | Variação grande é informação de mercado, não defeito do dado. |
+| 23 | 24/11/2026 | Alerta de variação diária em 50 bps, não 25 | Medido em 250 pregões: 25 bps gerava alerta a cada nove dias; 50 bps só nos 4 dias de choque real. |
+| 24 | 24/11/2026 | Falha no BCB não bloqueia a curva | A curva vem só da B3; CDI e Selic são contexto e podem ser repostos no dia seguinte. |
+| 25 | 24/11/2026 | 24/12 e 31/12 são dias úteis sem pregão | A B3 não abre nesses dias, mas eles contam no DU (mesma regra da B3 no DU dos contratos). |

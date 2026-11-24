@@ -114,7 +114,7 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 ### Fase 2 — Dados reais · ~10 h
 - `ingest/b3_di1.py`: ajustes do dia e backfill de 250 pregões.
 - `ingest/bcb.py`: CDI e Selic com filtro de datas (limite de 10 anos por consulta).
-- `qa/checks.py`: as 6 verificações da aba de metodologia, com um relatório por dia.
+- `qa/verificacoes.py`: as 6 verificações da aba de metodologia, com um relatório por dia.
 - Armazenamento em Parquet particionado por data, com os brutos fora do Git.
 - **Pronto quando:** a curva de 3 datas escolhidas bate com a B3 dentro de R$ 0,01 no PU.
 
@@ -208,8 +208,9 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 |---|---|
 | Design (21 telas, design system, metodologia) | ✅ Concluída |
 | 0 — Fundação | ✅ Concluída (PR #2) |
-| 1 — Motor de cálculo | 🔄 Em revisão (PR da fase 1) |
-| 2 a 7 | — |
+| 1 — Motor de cálculo | ✅ Concluída (PR #3) |
+| 2 — Dados reais | 🔄 Em revisão (PR da fase 2). 250 pregões baixados e verificados: 0 reprovados, 0 divergências de DU, PU a até R$ 0,005 da B3 |
+| 3 a 7 | — |
 
 ## Fontes
 - PYield (coleta B3/ANBIMA/BCB, intradiário com 15 min de atraso): https://pypi.org/project/PYield
