@@ -30,6 +30,9 @@ dev = [
     "mypy>=1.10",
     "pandas-stubs",
     "pre-commit>=3.7",
+    # referências externas usadas nos testes (calendário ANBIMA, flat-forward, forward)
+    "bizdays",
+    "pyield",
 ]
 
 [tool.hatch.build.targets.wheel]

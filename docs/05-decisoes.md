@@ -18,3 +18,7 @@
 | 14 | 24/11/2026 | Ritmo de ~5 h/semana | Disponibilidade do autor; MVP em ~11 semanas, completo em ~18. |
 | 15 | 24/11/2026 | Repositório público desde o primeiro commit | O histórico de commits também conta como portfólio. |
 | 16 | 24/11/2026 | Não versionar dados brutos da B3; publicar só métricas derivadas | Respeitar os termos de uso dos dados da B3. |
+| 17 | 24/11/2026 | Feriados calculados por regra (datas fixas + Páscoa), sem arquivo externo | Função pura e auditável; conferida contra a lista da ANBIMA de 2001 a 2078. |
+| 18 | 24/11/2026 | Usar a lista de feriados vigente na data-base (20/11 só a partir de 26/12/2023) | Um DU calculado antes da lei não descontava o 20/11; sem essa regra os PUs históricos não batem. Mesma convenção do PYield. |
+| 19 | 24/11/2026 | Key rate com alocação triangular, em vez de vértice mais próximo | A soma dos key rates fica exatamente igual ao DV01 paralelo. |
+| 20 | 24/11/2026 | Critério de pronto da Fase 1: validação contra PYield e bizdays, não contra o protótipo | Uma referência externa independente é uma prova mais forte que o próprio protótipo. |

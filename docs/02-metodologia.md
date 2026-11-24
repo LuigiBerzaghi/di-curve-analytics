@@ -11,7 +11,9 @@
 | Interpolação | Flat-forward entre vencimentos |
 | Choques | bps somados à taxa a.a. |
 | Data-base | Fechamento D0 |
-| Calendário | Feriados nacionais (lista da ANBIMA) |
+| Calendário | Feriados nacionais (lista da ANBIMA), com a lista **vigente na data-base**: o 20/11 só entra a partir de 26/12/2023 |
+| Contagem de DU | Intervalo `[data-base, vencimento)` |
+| Pontas da curva | Antes do 1º vértice, a taxa do 1º; depois do último, a taxa do último |
 
 ## Pipeline
 
@@ -68,7 +70,7 @@ A duration é a inclinação da curva PU × taxa; a convexidade é a curvatura. 
 ```
 
 ### Key rate DV01
-O choque é aplicado em um único vértice por vez (1A, 2A, 3A, 5A, 7A, 10A+), e cada contrato é alocado ao vértice mais próximo.
+Vértices de key rate: 1A, 2A, 3A, 5A, 7A e 10A. O DV01 de cada posição é repartido entre os dois vértices vizinhos com peso linear no prazo (alocação triangular); fora dos extremos, vai todo para a ponta. Assim a soma dos key rates é exatamente o DV01 paralelo.
 
 ### Cenários
 - **Paralelos:** −200 a +200 bps em toda a curva
