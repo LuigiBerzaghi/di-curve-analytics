@@ -33,7 +33,7 @@
 |---|---|---|---|
 | Ajustes do DI1 (taxa e PU por vencimento) | B3 | Biblioteca **PYield** (`pip install pyield`), que busca os dados da B3; histórico desde 1991 | Plano B: página "Ajustes do pregão" da B3. Guardar cópia local de tudo que for baixado. |
 | DI1 intradiário | B3 via PYield | Dados com **atraso de 15 min** durante o pregão | Resolve a dúvida do "tempo real": vamos chamar de "intradiário com atraso", nunca de "tempo real". |
-| CDI e Selic meta | BCB SGS | `api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados?formato=json&dataInicial=…&dataFinal=…` · série 432 = Selic meta | Desde 26/03/2025 é obrigatório filtrar por data, com no máximo 10 anos por consulta. A rota de "últimos N valores" vai até 20. Confirmar o código da série do CDI ao implementar. |
+| CDI e Selic meta | BCB SGS | `api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados?formato=json&dataInicial=…&dataFinal=…` · série 432 = Selic meta | Desde 26/03/2025 é obrigatório filtrar por data, com no máximo 10 anos por consulta. A rota de "últimos N valores" vai até 20. CDI anualizado = série 4389 (Fase 2). |
 | Feriados / dias úteis | ANBIMA | Biblioteca **bizdays** (calendário ANBIMA) ou o módulo de dias úteis do PYield | Usar uma e validar contra a outra nos testes. |
 
 **Termos de uso da B3.** A página de dados da B3 diz que as informações são de propriedade dela e servem para consulta informativa, conforme os Termos e Condições de Uso. Antes de publicar:
