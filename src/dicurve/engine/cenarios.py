@@ -12,7 +12,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import ArrayLike
 
-from dicurve.engine.curva import CurvaDI, Vetor
+from dicurve.engine.curva import CurvaPre, Vetor
 from dicurve.engine.risco import Posicao, delta_pv
 
 
@@ -67,13 +67,13 @@ CENARIOS_MACRO: dict[str, ChoqueCurva] = {
 }
 
 
-def aplicar(curva: CurvaDI, choque: ChoqueCurva) -> CurvaDI:
+def aplicar(curva: CurvaPre, choque: ChoqueCurva) -> CurvaPre:
     """Curva chocada: soma o choque às taxas dos vértices."""
     return curva.com_taxas(curva.taxas + choque.em(curva.du) * 1e-4)
 
 
 def delta_pv_carteira(
-    posicoes: Sequence[Posicao], curva: CurvaDI, choque: ChoqueCurva
+    posicoes: Sequence[Posicao], curva: CurvaPre, choque: ChoqueCurva
 ) -> dict[str, float]:
     """ΔPV exato de cada posição, com o choque lido no prazo de cada uma."""
     return {
@@ -82,5 +82,5 @@ def delta_pv_carteira(
     }
 
 
-def delta_pv_total(posicoes: Sequence[Posicao], curva: CurvaDI, choque: ChoqueCurva) -> float:
+def delta_pv_total(posicoes: Sequence[Posicao], curva: CurvaPre, choque: ChoqueCurva) -> float:
     return sum(delta_pv_carteira(posicoes, curva, choque).values())

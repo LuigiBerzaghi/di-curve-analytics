@@ -9,9 +9,9 @@ from dicurve.engine.alm import (
     gaps_acumulados,
 )
 from dicurve.engine.cenarios import paralelo
-from dicurve.engine.curva import CurvaDI
+from dicurve.engine.curva import CurvaPre
 
-CURVA = CurvaDI([32, 151, 378, 882, 1890], [0.149, 0.146, 0.140, 0.134, 0.133])
+CURVA = CurvaPre([32, 151, 378, 882, 1890], [0.149, 0.146, 0.140, 0.134, 0.133])
 BALANCO = [
     FaixaBalanco("≤ 3M", 32, 52.4e9, 58.2e9),
     FaixaBalanco("3–12M", 151, 38.1e9, 41.5e9),

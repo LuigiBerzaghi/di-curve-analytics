@@ -10,10 +10,10 @@ from dicurve.engine.cenarios import (
     inclinacao,
     paralelo,
 )
-from dicurve.engine.curva import CurvaDI
+from dicurve.engine.curva import CurvaPre
 from dicurve.engine.risco import Posicao, delta_pv
 
-CURVA = CurvaDI([252, 504, 756, 1260, 2520], [0.140, 0.135, 0.133, 0.132, 0.133])
+CURVA = CurvaPre([252, 504, 756, 1260, 2520], [0.140, 0.135, 0.133, 0.132, 0.133])
 CARTEIRA = [Posicao("a", 300, 100e6), Posicao("b", 900, -50e6), Posicao("c", 2000, 80e6)]
 
 

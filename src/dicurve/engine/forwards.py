@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from dicurve import DIAS_UTEIS_ANO
-from dicurve.engine.curva import VERTICES_PADRAO, CurvaDI
+from dicurve.engine.curva import VERTICES_PADRAO, CurvaPre
 
 
 def taxa_forward(du1: float, taxa1: float, du2: float, taxa2: float) -> float:
@@ -26,7 +26,7 @@ class TrechoForward:
     taxa: float
 
 
-def forwards_entre_vertices(curva: CurvaDI) -> list[TrechoForward]:
+def forwards_entre_vertices(curva: CurvaPre) -> list[TrechoForward]:
     """Forward de cada trecho entre vértices consecutivos. O primeiro trecho começa em hoje."""
     trechos: list[TrechoForward] = []
     du_ant, tx_ant = 0.0, 0.0
@@ -51,7 +51,7 @@ class MetricasForma:
     curvatura_bps: float
 
 
-def metricas_forma(curva: CurvaDI) -> MetricasForma:
+def metricas_forma(curva: CurvaPre) -> MetricasForma:
     v = curva.vertices_padrao()
     return MetricasForma(
         nivel=v["2A"],

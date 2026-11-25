@@ -16,7 +16,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from dicurve import DIAS_UTEIS_ANO
-from dicurve.engine.curva import CurvaDI
+from dicurve.engine.curva import CurvaPre
 
 BP = 1e-4
 
@@ -83,7 +83,7 @@ class MetricasCarteira:
     convexidade: float
 
 
-def metricas_carteira(posicoes: Sequence[Posicao], curva: CurvaDI) -> MetricasCarteira:
+def metricas_carteira(posicoes: Sequence[Posicao], curva: CurvaPre) -> MetricasCarteira:
     """PV, DV01 e médias de duration e convexidade ponderadas pelo PV líquido."""
     if not posicoes:
         raise ValueError("carteira vazia")
@@ -101,13 +101,13 @@ def metricas_carteira(posicoes: Sequence[Posicao], curva: CurvaDI) -> MetricasCa
     )
 
 
-def dv01_por_posicao(posicoes: Sequence[Posicao], curva: CurvaDI) -> dict[str, float]:
+def dv01_por_posicao(posicoes: Sequence[Posicao], curva: CurvaPre) -> dict[str, float]:
     return {p.nome: dv01(p.pv, curva.taxa(float(p.du)), p.du) for p in posicoes}
 
 
 def key_rate_dv01(
     posicoes: Sequence[Posicao],
-    curva: CurvaDI,
+    curva: CurvaPre,
     vertices: dict[str, int] | None = None,
 ) -> dict[str, float]:
     """DV01 por vértice de key rate.

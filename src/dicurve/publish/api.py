@@ -27,7 +27,7 @@ from dicurve.engine.alm import FaixaBalanco, delta_eve, delta_nii, duration_gap,
 from dicurve.engine.calendario import CalendarioDU
 from dicurve.engine.cenarios import CENARIOS_MACRO, REGIMES_INCLINACAO, paralelo
 from dicurve.engine.cenarios import delta_pv_total as _delta_pv_total
-from dicurve.engine.curva import VERTICES_PADRAO, CurvaDI, pu_de_taxa
+from dicurve.engine.curva import VERTICES_PADRAO, CurvaPre, pu_de_taxa
 from dicurve.engine.forwards import forwards_entre_vertices, metricas_forma
 from dicurve.engine.risco import Posicao, dv01_por_posicao, key_rate_dv01, metricas_carteira
 from dicurve.ingest import armazenamento, b3_di1
@@ -78,7 +78,7 @@ def curva_json(hoje: pd.DataFrame, anterior: pd.DataFrame | None = None) -> Json
     return {**_cabecalho(data), "contratos": contratos}
 
 
-def vertices_json(data: dt.date, curva: CurvaDI, anterior: CurvaDI | None = None) -> Json:
+def vertices_json(data: dt.date, curva: CurvaPre, anterior: CurvaPre | None = None) -> Json:
     """Vértices padrão interpolados (flat-forward) e métricas de forma."""
     v = curva.vertices_padrao()
     va = None if anterior is None else anterior.vertices_padrao()
@@ -102,7 +102,7 @@ def vertices_json(data: dt.date, curva: CurvaDI, anterior: CurvaDI | None = None
     }
 
 
-def forwards_json(data: dt.date, curva: CurvaDI) -> Json:
+def forwards_json(data: dt.date, curva: CurvaPre) -> Json:
     trechos = [
         {"du_inicio": t.du_inicio, "du_fim": t.du_fim, "taxa": _r(t.taxa, 6)}
         for t in forwards_entre_vertices(curva)
@@ -110,7 +110,7 @@ def forwards_json(data: dt.date, curva: CurvaDI) -> Json:
     return {**_cabecalho(data), "trechos": trechos}
 
 
-def risco_json(data: dt.date, curva: CurvaDI, posicoes: Sequence[Posicao]) -> Json:
+def risco_json(data: dt.date, curva: CurvaPre, posicoes: Sequence[Posicao]) -> Json:
     """Risco da carteira simulada: DV01, duration, convexidade, key rate e cenários."""
     m = metricas_carteira(posicoes, curva)
     dv01_pos = dv01_por_posicao(posicoes, curva)
@@ -144,7 +144,7 @@ def risco_json(data: dt.date, curva: CurvaDI, posicoes: Sequence[Posicao]) -> Js
     }
 
 
-def alm_json(data: dt.date, curva: CurvaDI, faixas: Sequence[FaixaBalanco]) -> Json:
+def alm_json(data: dt.date, curva: CurvaPre, faixas: Sequence[FaixaBalanco]) -> Json:
     """Gap por faixa, duration gap e ΔEVE/ΔNII em choques paralelos (balanço simulado)."""
     return {
         **_cabecalho(data, simulado=True),
@@ -187,7 +187,7 @@ def qa_json(data: dt.date, resultados: Sequence[Resultado]) -> Json:
     }
 
 
-def superficie_json(historico: Sequence[tuple[dt.date, CurvaDI]]) -> Json:
+def superficie_json(historico: Sequence[tuple[dt.date, CurvaPre]]) -> Json:
     """Matriz data × prazo com as taxas dos vértices padrão, em ordem cronológica."""
     if not historico:
         raise ValueError("histórico vazio")

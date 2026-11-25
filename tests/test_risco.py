@@ -2,7 +2,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from dicurve.engine.curva import CurvaDI, pu_de_taxa
+from dicurve.engine.curva import CurvaPre, pu_de_taxa
 from dicurve.engine.risco import (
     Posicao,
     convexidade,
@@ -14,7 +14,7 @@ from dicurve.engine.risco import (
     metricas_carteira,
 )
 
-CURVA = CurvaDI([252, 504, 756, 1260, 1764, 2520], [0.140, 0.135, 0.133, 0.132, 0.1325, 0.133])
+CURVA = CurvaPre([252, 504, 756, 1260, 1764, 2520], [0.140, 0.135, 0.133, 0.132, 0.1325, 0.133])
 CARTEIRA = [
     Posicao("F28", 283, 120e6),
     Posicao("F29", 533, -80e6),

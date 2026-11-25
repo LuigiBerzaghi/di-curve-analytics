@@ -12,7 +12,7 @@ from itertools import accumulate
 
 from dicurve import DIAS_UTEIS_ANO
 from dicurve.engine.cenarios import ChoqueCurva
-from dicurve.engine.curva import CurvaDI
+from dicurve.engine.curva import CurvaPre
 from dicurve.engine.risco import BP, delta_pv, duration_modificada
 
 
@@ -38,7 +38,7 @@ def gaps_acumulados(faixas: Sequence[FaixaBalanco]) -> list[float]:
     return list(accumulate(gaps(faixas)))
 
 
-def delta_eve(faixas: Sequence[FaixaBalanco], curva: CurvaDI, choque: ChoqueCurva) -> float:
+def delta_eve(faixas: Sequence[FaixaBalanco], curva: CurvaPre, choque: ChoqueCurva) -> float:
     """ΔEVE = ΣΔPV(ativos) − ΣΔPV(passivos), com reprecificação exata."""
     total = 0.0
     for f in faixas:
@@ -64,7 +64,7 @@ def delta_nii(
     return total
 
 
-def duration_gap(faixas: Sequence[FaixaBalanco], curva: CurvaDI) -> float:
+def duration_gap(faixas: Sequence[FaixaBalanco], curva: CurvaPre) -> float:
     """D_ativo − D_passivo × (Passivo / Ativo), com durations modificadas ponderadas."""
     ativo = sum(f.ativos for f in faixas)
     passivo = sum(f.passivos for f in faixas)

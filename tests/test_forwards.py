@@ -2,7 +2,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from dicurve.engine.curva import CurvaDI, fator_capitalizacao
+from dicurve.engine.curva import CurvaPre, fator_capitalizacao
 from dicurve.engine.forwards import (
     forwards_entre_vertices,
     metricas_forma,
@@ -33,14 +33,14 @@ def test_forward_reconstroi_a_taxa_longa(d1: int, extra: int, t1: float, spread:
 
 
 def test_forwards_entre_vertices_comecam_hoje() -> None:
-    c = CurvaDI([252, 504], [0.10, 0.12])
+    c = CurvaPre([252, 504], [0.10, 0.12])
     tr = forwards_entre_vertices(c)
     assert (tr[0].du_inicio, tr[0].du_fim, tr[0].taxa) == (0, 252, pytest.approx(0.10))
     assert tr[1].taxa == pytest.approx(1.12**2 / 1.10 - 1)
 
 
 def test_curva_plana_tem_forwards_iguais_e_forma_zerada() -> None:
-    c = CurvaDI([21, 252, 504, 756, 2520], [0.13] * 5)
+    c = CurvaPre([21, 252, 504, 756, 2520], [0.13] * 5)
     assert all(t.taxa == pytest.approx(0.13) for t in forwards_entre_vertices(c))
     m = metricas_forma(c)
     assert m.nivel == pytest.approx(0.13)

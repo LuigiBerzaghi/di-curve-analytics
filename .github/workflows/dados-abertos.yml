@@ -36,6 +36,14 @@ jobs:
           ls -la /tmp/bcb | head -30
           python scripts/extrair_bcb.py /tmp/bcb data/abertos/bcb_prefixados.csv
 
+      - name: BCB, CDI anualizado (SGS 4389, 2 anos)
+        continue-on-error: true
+        run: |
+          ini=$(date -u -d "-730 days" +%d/%m/%Y); fim=$(date -u +%d/%m/%Y)
+          curl -fsSL --retry 3 --retry-all-errors -o data/abertos/bcb_cdi_4389.json \
+            "https://api.bcb.gov.br/dados/serie/bcdata.sgs.4389/dados?formato=json&dataInicial=$ini&dataFinal=$fim"
+          head -c 200 data/abertos/bcb_cdi_4389.json
+
       - name: Tesouro Direto, taxas dos títulos ofertados
         continue-on-error: true
         run: |
@@ -47,7 +55,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/abertos/*.csv 2>/dev/null || true
+          git add data/abertos/*.csv data/abertos/*.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "Sem mudanças."; exit 0; fi
           git commit -m "Dados: recortes das fontes abertas (BCB e Tesouro, ODbL)"
           git push
