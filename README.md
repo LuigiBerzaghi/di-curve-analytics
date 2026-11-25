@@ -25,8 +25,8 @@ Terminal de análise da curva de juros pré brasileira (DI1). Ele monta a curva 
 | Design (21 telas, design system, metodologia) | ✅ |
 | 0 · Fundação (estrutura, ferramentas, CI) | ✅ |
 | 1 · Motor de cálculo | ✅ |
-| 2 · Dados reais | 🔄 |
-| 3 · Atualização diária automática | ⏳ |
+| 2 · Dados reais | ✅ |
+| 3 · Atualização diária automática | 🔄 |
 | 4 · Site no ar (Overview e Curva DI) | ⏳ |
 | 5 · Todas as telas | ⏳ |
 | 6 · Intradiário com 15 min de atraso | ⏳ |
@@ -40,8 +40,9 @@ src/dicurve/
   ingest/    coletores de dados públicos (B3, BCB, ANBIMA)
   qa/        verificações de qualidade dos dados
   publish/   geração dos JSON que o site lê
+  simulado.py  carteira e balanço simulados das telas de risco e ALM
 tests/       testes automatizados
-data/api/    JSON publicados (os dados brutos nunca entram no Git)
+data/api/    JSON do site (vazio até a decisão sobre os termos da B3; os brutos nunca entram no Git)
 web/         frontend (Vite + React + TypeScript, D3, Three.js)
 docs/        design system, metodologia, decisões e plano
 ```
@@ -61,6 +62,7 @@ Coleta de dados reais (salva em `data/raw/`, fora do Git):
 ```bash
 dicurve-atualizar --data 2026-11-23   # um pregão: baixa, salva e roda as 6 verificações
 dicurve-backfill --pregoes 250        # últimos 250 pregões, pulando os já salvos
+dicurve-publicar --destino data/api   # monta os JSON do contrato de dados (só se o dia for aprovado)
 pytest -m network                     # testes contra B3 e BCB
 ```
 

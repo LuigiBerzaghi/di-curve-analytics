@@ -218,8 +218,9 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 | Design (21 telas, design system, metodologia) | ✅ Concluída |
 | 0 — Fundação | ✅ Concluída (PR #2) |
 | 1 — Motor de cálculo | ✅ Concluída (PR #3) |
-| 2 — Dados reais | 🔄 Em revisão (PR da fase 2). 250 pregões baixados e verificados: 0 reprovados, 0 divergências de DU, PU a até R$ 0,005 da B3 |
-| 3 a 7 | — |
+| 2 — Dados reais | ✅ Concluída (PR #4). 250 pregões baixados e verificados: 0 reprovados, 0 divergências de DU, PU a até R$ 0,005 da B3 |
+| 3 — Job diário e API estática | 🔄 Em revisão (PR da fase 3). JSON do contrato gerados e testados; o workflow só roda depois do merge na main, quando começa a contar os 5 dias úteis. Publicação desligada (decisão 5) |
+| 4 a 7 | — |
 
 ## Fontes
 - PYield (coleta B3/ANBIMA/BCB, intradiário com 15 min de atraso): https://pypi.org/project/PYield

@@ -1,0 +1,96 @@
+name: Job diário
+
+# Depois do fechamento: coleta os ajustes do DI1 e o CDI/Selic, roda as verificações e
+# monta os JSON do contrato de dados. Se a coleta ou as verificações falharem, o job falha
+# (o GitHub avisa por e-mail) e nada é gerado.
+#
+# Publicação: desligada até a decisão 5 do plano (termos da B3). Os dados brutos ficam
+# só no cache do Actions, que não é baixável pelo site do GitHub; os JSON ficam no runner.
+on:
+  schedule:
+    - cron: "17 0 * * 2-6"  # 21:17 em Brasília, de segunda a sexta
+  workflow_dispatch:
+    inputs:
+      data:
+        description: "Data-base (AAAA-MM-DD). Vazio = hoje em Brasília."
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: job-diario
+  cancel-in-progress: false
+
+jobs:
+  diario:
+    name: Coleta, verificações e API
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[data]"
+
+      - name: Recuperar dados brutos do cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}
+          restore-keys: raw-
+
+      - name: Data-base
+        id: data
+        run: echo "valor=${{ inputs.data || '' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Coletar e verificar o dia
+        id: coleta
+        run: |
+          DATA="${{ steps.data.outputs.valor }}"
+          DATA="${DATA:-$(TZ=America/Sao_Paulo date +%F)}"
+          echo "data=$DATA" >> "$GITHUB_OUTPUT"
+          set +e
+          dicurve-atualizar --data "$DATA" --raiz data/raw
+          codigo=$?
+          set -e
+          if [ "$codigo" -eq 2 ]; then
+            echo "Sem pregão em $DATA: nada a fazer."
+            echo "pregao=nao" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "pregao=sim" >> "$GITHUB_OUTPUT"
+          exit "$codigo"
+
+      - name: Completar o histórico (superfície de 120 pregões)
+        if: steps.coleta.outputs.pregao == 'sim'
+        continue-on-error: true
+        run: dicurve-backfill --pregoes 120 --ate "${{ steps.coleta.outputs.data }}" --raiz data/raw > /dev/null
+
+      - name: Montar os JSON
+        if: steps.coleta.outputs.pregao == 'sim'
+        run: |
+          dicurve-publicar --data "${{ steps.coleta.outputs.data }}" --raiz data/raw --destino _api
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          latest = json.loads(pathlib.Path("_api/latest.json").read_text())
+          qa = json.loads(pathlib.Path(f"_api/{latest['data_base']}/qa.json").read_text())
+          print(f"### DI1 {latest['data_base']}: {'aprovado' if qa['aprovado'] else 'reprovado'}\n")
+          for v in qa["verificacoes"]:
+              print(f"- {'ok' if v['ok'] else v['gravidade']}: {v['regra']}")
+          print(f"\n{len(latest['arquivos'])} arquivos montados; publicação desligada (decisão 5).")
+          EOF
+
+      - name: Guardar dados brutos no cache
+        if: always() && steps.coleta.outputs.pregao == 'sim'
+        uses: actions/cache/save@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}

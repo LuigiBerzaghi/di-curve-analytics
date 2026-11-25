@@ -17,7 +17,7 @@
 | 13 | 24/11/2026 | "Intradiário com atraso de 15 min", nunca "tempo real" | É o que os dados públicos permitem; prometer tempo real seria impreciso. |
 | 14 | 24/11/2026 | Ritmo de ~5 h/semana | Disponibilidade do autor; MVP em ~11 semanas, completo em ~18. |
 | 15 | 24/11/2026 | Repositório público desde o primeiro commit | O histórico de commits também conta como portfólio. |
-| 16 | 24/11/2026 | Não versionar dados brutos da B3; publicar só métricas derivadas | Respeitar os termos de uso dos dados da B3. |
+| 16 | 24/11/2026 | Não versionar dados brutos da B3; publicar só métricas derivadas (revista pela 28) | Respeitar os termos de uso dos dados da B3. |
 | 17 | 24/11/2026 | Feriados calculados por regra (datas fixas + Páscoa), sem arquivo externo | Função pura e auditável; conferida contra a lista da ANBIMA de 2001 a 2078. |
 | 18 | 24/11/2026 | Usar a lista de feriados vigente na data-base (20/11 só a partir de 26/12/2023) | Um DU calculado antes da lei não descontava o 20/11; sem essa regra os PUs históricos não batem. Mesma convenção do PYield. |
 | 19 | 24/11/2026 | Key rate com alocação triangular, em vez de vértice mais próximo | A soma dos key rates fica exatamente igual ao DV01 paralelo. |
@@ -27,3 +27,7 @@
 | 23 | 24/11/2026 | Alerta de variação diária em 50 bps, não 25 | Medido em 250 pregões: 25 bps gerava alerta a cada nove dias; 50 bps só nos 4 dias de choque real. |
 | 24 | 24/11/2026 | Falha no BCB não bloqueia a curva | A curva vem só da B3; CDI e Selic são contexto e podem ser repostos no dia seguinte. |
 | 25 | 24/11/2026 | 24/12 e 31/12 são dias úteis sem pregão | A B3 não abre nesses dias, mas eles contam no DU (mesma regra da B3 no DU dos contratos). |
+| 26 | 25/11/2026 | Carteira simulada definida por prazo constante (3M a 12A), não por código de contrato | Contratos vencem; por prazo, a carteira é a mesma todo dia e o risco muda só pela curva. |
+| 27 | 25/11/2026 | Job diário às 21:17 (Brasília), com os brutos guardados no cache do Actions | Dá margem para a B3 divulgar os ajustes; o cache não é baixável pelo site do GitHub, então os brutos não ficam públicos. |
+| 28 | 25/11/2026 | Publicação desligada até a decisão 5; o job coleta, verifica e monta os JSON, mas não versiona nada | Os termos da B3 restringem publicação, download e dado derivado (plano, seção 3). |
+| 29 | 25/11/2026 | `latest.json` é gravado por último e só se as verificações forem aprovadas | O site nunca lê um dia pela metade nem um dia reprovado. |
