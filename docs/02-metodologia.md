@@ -105,7 +105,7 @@ Um **erro** bloqueia a publicação do dia; um **alerta** só fica registrado. V
 
 ## Premissas e limitações
 
-1. Nesta versão, cotações, carteira e balanço são ilustrativos.
+1. A curva usa os ajustes reais da B3; a carteira e o balanço são simulados.
 2. Choques são instantâneos: sem rebalanceamento, carrego ou passagem de tempo.
 3. O balanço de ALM é agregado por faixa e cada faixa é tratada no ponto médio.
 4. Sem risco de base, spread de crédito ou opcionalidade (pré-pagamento, resgate).

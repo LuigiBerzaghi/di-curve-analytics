@@ -73,7 +73,7 @@ pytest -m network                     # testes contra B3 e BCB
 
 ## Fontes de dados
 
-Os dados de mercado vêm de fontes públicas: B3 (ajustes do DI1), Banco Central (SGS) e ANBIMA (calendário de feriados). O repositório publica apenas métricas derivadas, com a fonte citada, e não redistribui os arquivos brutos.
+Os dados de mercado vêm de fontes públicas: B3 (ajustes do DI1), Banco Central (SGS) e ANBIMA (calendário de feriados). Os arquivos brutos não são versionados. Os termos da B3 restringem a publicação de dados de mercado e de dados derivados deles; por isso, a publicação dos números calculados com dados da B3 está desligada até uma decisão registrada no [plano](docs/07-plano-de-implementacao.md), seção 3.
 
 ## Aviso
 

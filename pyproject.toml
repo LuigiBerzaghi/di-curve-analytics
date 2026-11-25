@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "di-curve-analytics"
-version = "0.0.1"
+version = "0.2.0"
 description = "Curva DI, risco de taxa, cenários e ALM com dados públicos da B3, BCB e ANBIMA."
 readme = "README.md"
 license = "MIT"
