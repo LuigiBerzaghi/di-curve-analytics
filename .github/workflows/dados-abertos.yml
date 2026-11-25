@@ -1,0 +1,53 @@
+name: Dados abertos
+
+# Baixa as fontes abertas da curva prefixada e versiona os recortes em data/abertos/:
+# - BCB, "Negociação de Títulos Federais no Mercado Secundário" (Selic, ODbL): LTN e NTN-F
+# - Tesouro Transparente, "Taxas dos Títulos Ofertados pelo Tesouro Direto" (ODbL): prefixados
+on:
+  push:
+    branches: [fase-3b-tesouro]
+    paths: [".github/workflows/dados-abertos.yml", "scripts/extrair_*.py"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  baixar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: BCB, negociações no mercado secundário (24 meses)
+        id: bcb
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/bcb
+          for k in $(seq 0 23); do
+            m=$(date -u -d "$(date -u +%Y-%m-15) -$k month" +%Y%m)
+            curl -fsSL --retry 3 --retry-all-errors -A "Mozilla/5.0" -o /tmp/bcb/$m.zip \
+              "https://www4.bcb.gov.br/pom/demab/negociacoes/download/NegE$m.ZIP" \
+              && echo "ok $m" || echo "falhou $m"
+          done
+          ls -la /tmp/bcb | head -30
+          python scripts/extrair_bcb.py /tmp/bcb data/abertos/bcb_prefixados.csv
+
+      - name: Tesouro Direto, taxas dos títulos ofertados
+        continue-on-error: true
+        run: |
+          curl -fsSL --retry 2 --retry-all-errors -A "Mozilla/5.0" -o /tmp/td.csv \
+            "https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/precotaxatesourodireto.csv"
+          python scripts/extrair_prefixados.py /tmp/td.csv data/abertos/tesouro_prefixados.csv 2020-01-01
+
+      - name: Versionar os recortes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/abertos/*.csv 2>/dev/null || true
+          if git diff --cached --quiet; then echo "Sem mudanças."; exit 0; fi
+          git commit -m "Dados: recortes das fontes abertas (BCB e Tesouro, ODbL)"
+          git push
