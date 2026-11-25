@@ -4,12 +4,12 @@
 
 ## 1. Objetivo e definição de pronto
 
-**Objetivo:** um site público, com link no portfólio, que mostra a curva DI real atualizada sozinha todo dia, mede o risco de uma carteira simulada e simula cenários, com o design definido em `01-design-system.md`.
+**Objetivo:** um site público, com link no portfólio, que mostra a curva de juros pré real (títulos públicos, dados abertos do BCB) atualizada sozinha todo dia, mede o risco de uma carteira simulada e simula cenários, com o design definido em `01-design-system.md`.
 
 **O projeto está pronto para o portfólio quando:**
 - [ ] O link abre em menos de 3 s no celular e no computador.
-- [ ] A curva mostrada é a do último fechamento da B3, atualizada sem intervenção manual.
-- [ ] Os PUs recalculados batem com os da B3 dentro de R$ 0,01 em todos os vencimentos.
+- [ ] A curva mostrada é a do último dia publicado pelo BCB, atualizada sem intervenção manual.
+- [ ] Os PUs recalculados batem com os divulgados (BCB para LTN; B3 para DI1, na validação local) dentro de R$ 0,01.
 - [ ] O motor de cálculo tem testes automatizados, e os testes rodam a cada commit.
 - [ ] O repositório tem um README com GIF, explicação e instruções para rodar localmente.
 - [ ] Cenários, simulador personalizado e ALM funcionam no navegador.
@@ -19,7 +19,7 @@
 
 | Entra no MVP | Fica para depois |
 |---|---|
-| Curva DI de fechamento (histórico + diário) | Intradiário com atraso de 15 min (Fase 6) |
+| Curva pré de fechamento (histórico + diário) | Curva intradiária (não há fonte aberta) |
 | Motor: PU, taxa, fator, flat-forward, forwards, spreads | Curva de títulos públicos (LTN/NTN-F) |
 | DV01, key rate, duration, convexidade | EVE/NII por produto |
 | Choques paralelos, inclinação, macro, personalizado | Tela "Sobre o projeto" (vira a página do README) |
@@ -27,7 +27,19 @@
 | Superfície 3D do histórico | Alertas e notificações |
 | Aba Dados e metodologia | |
 
-## 3. Fontes de dados (verificadas em 24/11/2026)
+## 3. Fontes de dados (revistas em 25/11/2026)
+
+**Fonte publicada (desde 25/11/2026):** dados abertos do Banco Central, licença ODbL. Ver decisões 30 a 37.
+
+| Dado | Fonte | Como acessar | Observações |
+|---|---|---|---|
+| LTN e NTN-F negociadas (taxa e PU por vencimento) | BCB, Negociação de Títulos Federais no Mercado Secundário (Selic) | ZIP mensal `www4.bcb.gov.br/pom/demab/negociacoes/download/NegEaaaamm.ZIP` | ODbL. O dia D sai na manhã de D+1. Taxa média só para LTN; a yield da NTN-F sai do PU. |
+| CDI | BCB SGS, série 4389 | API do SGS | ODbL. Âncora de 1 DU da curva. |
+| Feriados / dias úteis | Regra da ANBIMA | `engine/calendario.py` | Conferido contra bizdays e PYield. |
+
+**Tentada e descartada:** Tesouro Transparente (taxas do Tesouro Direto, ODbL): o servidor recusa conexões dos runners do GitHub.
+
+**Fontes da primeira versão (hoje só validação local):**
 
 | Dado | Fonte | Como acessar | Observações |
 |---|---|---|---|
@@ -43,7 +55,7 @@
 
 O texto é o mesmo na [versão 1.2.1 de 2026](https://b3.com.br/data/files/75/95/28/D6/9D881A10F75B881AAC094EA8/Market%20Data%20B3%20Consumption%20Policy%20V1.2.1.pdf) (em inglês), que também não traz exceção para uso pessoal, educacional ou não comercial. Contato da B3 para contratação e licenças: contratacao@b3.com.br, (11) 2565-5080.
 
-**Consequência:** "publicar só métricas derivadas" não resolve, porque a política também cobre dado derivado. Até a decisão 5 (seção 11), nenhum JSON calculado com dados da B3 vai para o repositório público: o job diário coleta, verifica e monta os arquivos, mas a publicação fica desligada. Os arquivos brutos continuam fora do Git (`data/raw/` no `.gitignore`).
+**Consequência:** "publicar só métricas derivadas" não resolve, porque a política também cobre dado derivado. Por isso a fonte publicada passou a ser o BCB (decisão 5). O DI1 da B3 fica só para validação local e uso pessoal; nada calculado com ele é versionado ou publicado.
 
 ## 4. Princípio do projeto: motor próprio, validado contra referência
 
@@ -124,7 +136,7 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 
 ### Fase 3 — Job diário e API estática · ~6 h
 - `publish/api.py` gera os JSON do contrato de dados.
-- A publicação depende da decisão 5 (termos da B3); enquanto isso, o job roda com a publicação desligada.
+- Fonte: dados abertos do BCB (LTN, NTN-F e CDI), com bootstrapping da curva (`engine/titulos.py`).
 - Workflow agendado após o fechamento, para rodar sozinho todo dia útil.
 - Se a coleta ou o QA falhar, o job **não** publica e mantém o último dia bom.
 - **Pronto quando:** o job roda 5 dias úteis seguidos sem intervenção.
@@ -132,9 +144,9 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 ### Fase 4 — Frontend MVP · ~20 h
 - Design system em código: tokens de cor e fonte e os componentes Panel, Stat, Seg, Table, Heat e Legend.
 - Shell com Sidebar, Ticker e Rail.
-- Telas: Overview e as 9 de Curva DI, incluindo a superfície 3D em Three.js (girável com o mouse).
+- Telas: Overview e as 9 de Curva (adaptadas de contratos DI1 para LTN e NTN-F), incluindo a superfície 3D em Three.js (girável com o mouse).
 - Mobile: menu empilhado e tabelas com rolagem.
-- **Pronto quando:** Overview e Curva DI estão no ar com dados reais e o Lighthouse dá ≥ 90.
+- **Pronto quando:** Overview e Curva estão no ar com dados reais e o Lighthouse dá ≥ 90.
 
 ### Fase 5 — Frontend completo · ~20 h
 - Sensibilidades (5 telas), Cenários (4 telas, com o simulador em TypeScript) e ALM.
@@ -142,11 +154,9 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 - Teste de paridade: o simulador em TS dá o mesmo resultado que o Python em 50 cenários aleatórios.
 - **Pronto quando:** as 21 telas do design estão implementadas.
 
-### Fase 6 — Intradiário com atraso · ~8 h
-- Depende da decisão 5: a B3 tem regras próprias para distribuir dados com atraso em site aberto.
-- Coleta a cada 15–30 min durante o pregão, mostrando "atualizado às hh:mm · atraso de 15 min".
-- Ticker e curva do dia contra o fechamento anterior.
-- **Pronto quando:** funciona por um pregão inteiro sem falhar.
+### Fase 6 — A definir · ~8 h
+- A fase original (intradiário com atraso de 15 min) saiu: não há fonte aberta intradiária para a curva pré.
+- Proposta para substituir: curva real com as NTN-B do mesmo conjunto do BCB e inflação implícita (pré × real).
 
 ### Fase 7 — Lançamento · ~6 h
 - README do repositório com GIF, arquitetura, como rodar e decisões.
@@ -173,9 +183,9 @@ Cada fase termina com uma entrega visível: um teste passando, um gráfico com d
 | 2–4 | 1 — Motor de cálculo | Motor testado reproduzindo o protótipo |
 | 5–6 | 2 — Dados reais | Curva real batendo com a B3 |
 | 7–8 | 3 — Job diário | Atualização automática por 5 dias seguidos |
-| 9–12 | 4 — Frontend MVP | **Site no ar** com Overview e Curva DI (~meados de fevereiro de 2027) |
+| 9–12 | 4 — Frontend MVP | **Site no ar** com Overview e Curva (~meados de fevereiro de 2027) |
 | 13–16 | 5 — Frontend completo | As 21 telas |
-| 17 | 6 — Intradiário | Curva do dia com atraso de 15 min |
+| 17 | 6 — A definir | Proposta: curva real e inflação implícita |
 | 18 | 7 — Lançamento | README, post e currículo (~início de abril de 2027) |
 
 Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está considerado no "~".
@@ -186,10 +196,11 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 
 | Risco | Impacto | Mitigação |
 |---|---|---|
-| B3 muda o formato ou a página e a coleta quebra | Site desatualizado | PYield como camada; cache local; QA bloqueia a publicação; alerta por e-mail quando o job falha |
-| Termos de uso da B3 restringem a publicação | Ter que tirar dados do ar | Termos lidos em 25/11/2026 (seção 3): restringem publicação, download e dado derivado. Publicação desligada até a decisão 5 |
+| O BCB muda o formato ou atrasa a publicação | Site desatualizado | Verificações bloqueiam a publicação; o job avisa por e-mail quando falha ou quando os dados atrasam mais de 3 dias úteis |
+| Termos de uso da B3 restringem a publicação | Ter que tirar dados do ar | Termos lidos em 25/11/2026 (seção 3): restringem publicação, download e dado derivado. Resolvido com a troca para dados abertos do BCB (decisão 5) |
 | Erro de cálculo passa despercebido | Credibilidade com quem é da área | Testes contra PYield e B3; testes de propriedade; casos de PU conferidos à mão |
-| Agendamento do GitHub Actions atrasa | Atualização atrasa alguns minutos | Aceitável no fechamento; no intradiário, mostrar a hora real da coleta |
+| Agendamento do GitHub Actions atrasa | Atualização atrasa alguns minutos | Aceitável: o dado é diário; o job roda duas vezes por dia |
+| Poucos títulos num dia (curva curta) | Vértices longos instáveis | Verificação exige 4 LTN e curva até 5 anos; NTN-F longas estendem até ~10 anos |
 | 3D pesado no celular | Site lento | Versão 2D como alternativa no mobile; carregar o Three.js só nas telas que usam |
 | Escopo cresce | Projeto não termina | MVP fechado (seção 2); itens novos vão para "depois" |
 | Confusão com dados proprietários | Problema de compliance | Nenhum dado, carteira ou metodologia interna de qualquer instituição; tudo público ou simulado, e o README diz isso |
@@ -209,7 +220,7 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 | 2 | Repositório público ou privado | ✅ Público desde o primeiro commit |
 | 3 | Nome do repositório e domínio | Proposta: `di-curve-analytics` no GitHub Pages |
 | 4 | Hospedagem do frontend | Proposta: GitHub Pages; Vercel se precisar de algo dinâmico depois |
-| 5 | Publicação de dados da B3 | 🔄 Escolhido em 25/11/2026: pedir autorização por escrito à B3 (contratacao@b3.com.br). Até a resposta, o site é desenvolvido com dados só na máquina local e nada é publicado. Plano B: curva pré com dados abertos do Tesouro |
+| 5 | Publicação de dados da B3 | ✅ Resolvido em 25/11/2026: a fonte publicada passou a ser o BCB (dados abertos, ODbL). Não é preciso autorização da B3; o DI1 fica só para validação local |
 
 ## 12. Status
 
@@ -219,11 +230,12 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 | 0 — Fundação | ✅ Concluída (PR #2) |
 | 1 — Motor de cálculo | ✅ Concluída (PR #3) |
 | 2 — Dados reais | ✅ Concluída (PR #4). 250 pregões baixados e verificados: 0 reprovados, 0 divergências de DU, PU a até R$ 0,005 da B3 |
-| 3 — Job diário e API estática | 🔄 Em revisão (PR da fase 3). JSON do contrato gerados e testados; o workflow só roda depois do merge na main, quando começa a contar os 5 dias úteis. Publicação desligada (decisão 5) |
+| 3 — Job diário e API estática | 🔄 Em revisão (PR da fase 3b). Fonte trocada para dados abertos do BCB: LTN, NTN-F e CDI, curva por bootstrapping; 496 dias verificados sem reprovação. O job começa a contar os 5 dias úteis depois do merge na main |
 | 4 a 7 | — |
 
 ## Fontes
-- PYield (coleta B3/ANBIMA/BCB, intradiário com 15 min de atraso): https://pypi.org/project/PYield
+- BCB, Negociação de Títulos Federais no Mercado Secundário (ODbL): https://dadosabertos.bcb.gov.br/dataset/negociacao-de-titulos-federais-no-mercado-secundario
+- PYield (coleta B3/ANBIMA/BCB; aqui só para validação local): https://pypi.org/project/PYield
 - API SGS do Banco Central (limites e formato): https://dadosabertos.bcb.gov.br/dataset/432-taxa-de-juros---meta-selic-definida-pelo-copom
 - bizdays (calendário ANBIMA): https://wilsonfreitas.github.io/python-bizdays/quick.html
 - B3, boletins e termos de uso dos dados: https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/historico/boletins-diarios/pesquisa-por-pregao/

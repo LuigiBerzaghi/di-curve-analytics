@@ -1,0 +1,77 @@
+{
+ "versao": 1,
+ "data_base": "2026-11-24",
+ "fonte": "BCB, negociações de títulos federais no Selic (ODbL); cálculo próprio",
+ "trechos": [
+  {
+   "du_inicio": 0,
+   "du_fim": 1,
+   "taxa": 0.1365
+  },
+  {
+   "du_inicio": 1,
+   "du_fim": 87,
+   "taxa": 0.139055
+  },
+  {
+   "du_inicio": 87,
+   "du_fim": 150,
+   "taxa": 0.148233
+  },
+  {
+   "du_inicio": 150,
+   "du_fim": 215,
+   "taxa": 0.145516
+  },
+  {
+   "du_inicio": 215,
+   "du_fim": 278,
+   "taxa": 0.157881
+  },
+  {
+   "du_inicio": 278,
+   "du_fim": 341,
+   "taxa": 0.144638
+  },
+  {
+   "du_inicio": 341,
+   "du_fim": 466,
+   "taxa": 0.163653
+  },
+  {
+   "du_inicio": 466,
+   "du_fim": 526,
+   "taxa": 0.157899
+  },
+  {
+   "du_inicio": 526,
+   "du_fim": 650,
+   "taxa": 0.158546
+  },
+  {
+   "du_inicio": 650,
+   "du_fim": 775,
+   "taxa": 0.163452
+  },
+  {
+   "du_inicio": 775,
+   "du_fim": 1279,
+   "taxa": 0.157326
+  },
+  {
+   "du_inicio": 1279,
+   "du_fim": 1531,
+   "taxa": 0.166645
+  },
+  {
+   "du_inicio": 1531,
+   "du_fim": 2030,
+   "taxa": 0.157657
+  },
+  {
+   "du_inicio": 2030,
+   "du_fim": 2532,
+   "taxa": 0.141403
+  }
+ ]
+}

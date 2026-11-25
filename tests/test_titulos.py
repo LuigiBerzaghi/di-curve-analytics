@@ -2,7 +2,6 @@ import datetime as dt
 import itertools
 from pathlib import Path
 
-import pandas as pd
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -24,7 +23,7 @@ from dicurve.engine.titulos import (
 )
 
 CAL = CalendarioDU.anbima()
-BCB = Path(__file__).parents[1] / "data" / "abertos" / "bcb_prefixados.csv"
+BCB = Path(__file__).parents[1] / "data" / "abertos" / "titulos.csv"
 
 
 def test_cupom_semestral_da_ntnf() -> None:
@@ -61,21 +60,19 @@ def test_fluxos_ntnf_somam_principal_no_fim() -> None:
         fluxos_ntnf(dt.date(2026, 11, 24), dt.date(2029, 4, 1), CAL)
 
 
-@pytest.mark.skipif(not BCB.exists(), reason="recorte do BCB não baixado")
+@pytest.mark.skipif(not BCB.exists(), reason="dados abertos não baixados")
 def test_ltn_reproduz_os_pus_do_bcb() -> None:
     """Referência externa: no arquivo do BCB, PU mínimo ↔ taxa máxima de cada LTN negociada."""
-    df = pd.read_csv(BCB, sep=";", decimal=",", dtype=str)
-    df = df[df["SIGLA"] == "LTN"].dropna(subset=["TAXA MAX"])
-    erros = []
-    for data, venc, taxa, pu in zip(
-        df["DATA MOV"], df["VENCIMENTO"], df["TAXA MAX"], df["PU MIN"], strict=True
-    ):
-        base = dt.datetime.strptime(data, "%d/%m/%Y").date()
-        vencimento = dt.datetime.strptime(venc, "%d/%m/%Y").date()
-        du = CAL.contar(base, vencimento)
-        erros.append(
-            abs(pu_ltn(float(taxa.replace(",", ".")) / 100, du) - float(pu.replace(",", ".")))
+    from dicurve.ingest.bcb_titulos import de_csv
+
+    df = de_csv(BCB)
+    df = df[df["sigla"] == "LTN"].dropna(subset=["taxa_max", "pu_min"])
+    erros = [
+        abs(pu_ltn(float(t), CAL.contar(d, v)) - float(p))
+        for d, v, t, p in zip(
+            df["data_base"], df["vencimento"], df["taxa_max"], df["pu_min"], strict=True
         )
+    ]
     assert len(erros) > 1000
     assert max(erros) < 0.01
 

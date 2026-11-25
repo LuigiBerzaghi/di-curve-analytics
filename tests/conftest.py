@@ -53,3 +53,39 @@ def ajustes() -> pd.DataFrame:
 @pytest.fixture
 def cal() -> CalendarioDU:
     return CAL
+
+
+# ---------- títulos públicos (dados abertos do BCB) ----------
+
+VENC_LTN = [
+    dt.date(2027, 4, 1),
+    dt.date(2027, 10, 1),
+    dt.date(2028, 7, 1),
+    dt.date(2029, 7, 1),
+    dt.date(2032, 1, 1),
+]
+VENC_NTNF = [dt.date(2029, 1, 1), dt.date(2035, 1, 1), dt.date(2037, 1, 1)]
+
+
+def tabela_titulos(
+    datas: list[dt.date], zero: Callable[[int], float] = lambda du: 0.14 + du * 6e-6
+) -> pd.DataFrame:
+    """Negociações sintéticas no formato de ``bcb_titulos``: LTN na curva zero e NTN-F
+    precificadas pela mesma curva (consistentes por construção)."""
+    from dicurve.engine.curva import CurvaPre
+    from dicurve.engine.titulos import fluxos_ntnf, pu_ltn, pu_por_curva
+    from dicurve.ingest.bcb_titulos import ORDEM
+
+    linhas = []
+    for i, d in enumerate(datas):
+        prazos = list(range(1, 3200, 21))
+        curva = CurvaPre(prazos, [zero(p) + i * 2e-4 for p in prazos])
+        for v in VENC_LTN:
+            du = CAL.contar(d, v)
+            tx = round(float(curva.taxa(float(du))), 6)
+            pu = pu_ltn(tx, du)
+            linhas.append([d, "LTN", "100000", v, 10, 1000, pu, pu, pu, tx, tx, tx])
+        for v in VENC_NTNF:
+            pu = pu_por_curva(fluxos_ntnf(d, v, CAL), curva)
+            linhas.append([d, "NTN-F", "950199", v, 10, 1000, pu, pu, pu, None, None, None])
+    return pd.DataFrame(linhas, columns=ORDEM)

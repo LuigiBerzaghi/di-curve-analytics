@@ -4,11 +4,10 @@ As funções ``*_json`` são puras: recebem tabelas e curvas e devolvem dicioná
 para serializar. ``montar`` lê o armazenamento local; ``escrever`` grava os arquivos.
 
 Uso:
-    dicurve-publicar --data 2026-11-23 --destino data/api
+    dicurve-publicar --data 2026-11-24 --destino data/api
 
-Só gera os arquivos se as verificações do dia forem aprovadas. Enquanto a decisão 5 do
-plano (termos da B3) estiver pendente, os arquivos ficam só na máquina ou no runner do
-job: nada calculado com dados da B3 é versionado.
+A curva vem de dados abertos (LTN e NTN-F negociadas no Selic e CDI, BCB, licença ODbL).
+Só gera os arquivos se as verificações do dia forem aprovadas.
 """
 
 from __future__ import annotations
@@ -27,17 +26,21 @@ from dicurve.engine.alm import FaixaBalanco, delta_eve, delta_nii, duration_gap,
 from dicurve.engine.calendario import CalendarioDU
 from dicurve.engine.cenarios import CENARIOS_MACRO, REGIMES_INCLINACAO, paralelo
 from dicurve.engine.cenarios import delta_pv_total as _delta_pv_total
-from dicurve.engine.curva import VERTICES_PADRAO, CurvaPre, pu_de_taxa
+from dicurve.engine.curva import VERTICES_PADRAO, CurvaPre
 from dicurve.engine.forwards import forwards_entre_vertices, metricas_forma
 from dicurve.engine.risco import Posicao, dv01_por_posicao, key_rate_dv01, metricas_carteira
-from dicurve.ingest import armazenamento, b3_di1
-from dicurve.qa.verificacoes import Resultado, aprovado, verificar_di1
+from dicurve.engine.titulos import ResultadoBootstrap, taxa_por_pu
+from dicurve.ingest import bcb_titulos
+from dicurve.ingest.atualizar import RAIZ_PADRAO, caminho_titulos, ler_cdi
+from dicurve.qa.titulos import verificar_titulos
+from dicurve.qa.verificacoes import Resultado, aprovado
 from dicurve.simulado import balanco, carteira
 
 VERSAO_CONTRATO = 1
-FONTE_B3 = "B3, ajustes do DI1; cálculo próprio"
+FONTE = bcb_titulos.FONTE
 CHOQUES_PARALELOS = (-200, -100, -50, 50, 100, 200)
 PREGOES_SUPERFICIE = 120
+DIAS_MANTIDOS = 20
 
 Json = dict[str, Any]
 
@@ -48,34 +51,57 @@ def _r(x: float, casas: int) -> float:
 
 def _cabecalho(data_base: dt.date, *, simulado: bool = False) -> Json:
     cab: Json = {"versao": VERSAO_CONTRATO, "data_base": data_base.isoformat()}
-    cab["fonte"] = "Simulado sobre a curva " + FONTE_B3 if simulado else FONTE_B3
+    cab["fonte"] = "Simulado sobre a curva de " + FONTE if simulado else FONTE
     return cab
 
 
-def curva_json(hoje: pd.DataFrame, anterior: pd.DataFrame | None = None) -> Json:
-    """Contratos do dia: código, vencimento, DU, taxa, PU do motor e variação em bps."""
-    data = hoje["data_base"].iloc[0]
-    ant = (
-        {}
-        if anterior is None
-        else dict(zip(anterior["codigo"], anterior["taxa_ajuste"], strict=True))
-    )
-    contratos = []
-    for c, venc, du, tx in zip(
-        hoje["codigo"], hoje["vencimento"], hoje["du_b3"], hoje["taxa_ajuste"], strict=True
-    ):
-        delta = None if c not in ant else _r((tx - ant[c]) * 1e4, 2)
-        contratos.append(
+def titulos_json(
+    df: pd.DataFrame,
+    data: dt.date,
+    cal: CalendarioDU,
+    resultado: ResultadoBootstrap,
+    anterior: dt.date | None = None,
+) -> Json:
+    """Títulos negociados no dia (taxa da LTN, yield da NTN-F) e os vértices da curva."""
+    ltns, ntnfs = bcb_titulos.titulos_do_dia(df, data, cal)
+    taxas_ant: dict[tuple[str, dt.date], float] = {}
+    if anterior is not None:
+        l0, n0 = bcb_titulos.titulos_do_dia(df, anterior, cal)
+        taxas_ant |= {("LTN", x.vencimento): x.taxa for x in l0}
+        taxas_ant |= {("NTN-F", n.vencimento): taxa_por_pu(n.fluxos, n.pu) for n in n0}
+    dia = {
+        (sg, v): (pu, op, q)
+        for sg, v, pu, op, q in zip(
+            *(
+                df[df["data_base"] == data][c]
+                for c in ("sigla", "vencimento", "pu_med", "num_oper", "quantidade")
+            ),
+            strict=True,
+        )
+    }
+    titulos = []
+    for sigla, venc, du, taxa in [("LTN", x.vencimento, x.du, x.taxa) for x in ltns] + [
+        ("NTN-F", n.vencimento, n.du, taxa_por_pu(n.fluxos, n.pu)) for n in ntnfs
+    ]:
+        pu, operacoes, quantidade = dia[(sigla, venc)]
+        ant = taxas_ant.get((sigla, venc))
+        titulos.append(
             {
-                "codigo": c,
+                "sigla": sigla,
                 "vencimento": venc.isoformat(),
                 "du": int(du),
-                "taxa": _r(tx, 6),
-                "pu": _r(pu_de_taxa(float(tx), float(du)), 2),
-                "delta_bps": delta,
+                "taxa": _r(taxa, 6),
+                "pu_medio": _r(float(pu), 6),
+                "operacoes": int(operacoes),
+                "quantidade": int(quantidade),
+                "delta_bps": None if ant is None else _r((taxa - ant) * 1e4, 2),
             }
         )
-    return {**_cabecalho(data), "contratos": contratos}
+    vertices = [
+        {"du": int(du), "taxa": _r(tx, 6), "origem": resultado.origem.get(int(du), "")}
+        for du, tx in zip(resultado.curva.du, resultado.curva.taxas, strict=True)
+    ]
+    return {**_cabecalho(data), "titulos": titulos, "vertices_curva": vertices}
 
 
 def vertices_json(data: dt.date, curva: CurvaPre, anterior: CurvaPre | None = None) -> Json:
@@ -208,37 +234,42 @@ class DiaReprovadoError(RuntimeError):
 
 def montar(
     data: dt.date,
-    raiz: Path = armazenamento.RAIZ_PADRAO,
+    raiz: Path = RAIZ_PADRAO,
     *,
     cal: CalendarioDU | None = None,
     pregoes_superficie: int = PREGOES_SUPERFICIE,
 ) -> dict[str, Json]:
-    """Lê os dados salvos e devolve ``{caminho: conteúdo}``. Levanta ``DiaReprovadoError``."""
+    """Lê os dados abertos e devolve ``{caminho: conteúdo}``. Levanta ``DiaReprovadoError``."""
     cal = cal or CalendarioDU.anbima()
-    hoje = armazenamento.ler("b3_di1", data, raiz)
-    datas = [d for d in armazenamento.datas_salvas("b3_di1", raiz) if d < data]
-    anterior = armazenamento.ler("b3_di1", datas[-1], raiz) if datas else None
-    resultados = verificar_di1(hoje, cal, anterior)
-    if not aprovado(resultados):
-        raise DiaReprovadoError(f"verificações reprovadas em {data:%d/%m/%Y}")
+    df = bcb_titulos.de_csv(caminho_titulos(raiz))
+    cdi = ler_cdi(raiz)
+    todas = bcb_titulos.datas(df)
+    if data not in todas:
+        raise ValueError(f"sem negociações em {data:%d/%m/%Y}")
+    datas = [d for d in todas if d <= data][-pregoes_superficie:]
 
-    curva = b3_di1.curva_de_ajustes(hoje)
-    curva_ant = None if anterior is None else b3_di1.curva_de_ajustes(anterior)
-    historico = [
-        (d, b3_di1.curva_de_ajustes(armazenamento.ler("b3_di1", d, raiz)))
-        for d in datas[-(pregoes_superficie - 1) :]
-    ]
-    historico.append((data, curva))
+    def curva(d: dt.date) -> ResultadoBootstrap:
+        return bcb_titulos.curva_do_dia(df, d, cal, float(cdi[d]) if d in cdi.index else None)
+
+    resultados = {d: curva(d) for d in datas}
+    hoje = resultados[data]
+    anterior = datas[-2] if len(datas) > 1 else None
+    curva_ant = resultados[anterior].curva if anterior else None
+    verificacoes = verificar_titulos(df, data, cal, hoje, curva_ant)
+    if not aprovado(verificacoes):
+        raise DiaReprovadoError(f"verificações reprovadas em {data:%d/%m/%Y}")
 
     pasta = data.isoformat()
     return {
-        f"{pasta}/curve.json": curva_json(hoje, anterior),
-        f"{pasta}/vertices.json": vertices_json(data, curva, curva_ant),
-        f"{pasta}/forwards.json": forwards_json(data, curva),
-        f"{pasta}/risk.json": risco_json(data, curva, carteira()),
-        f"{pasta}/alm.json": alm_json(data, curva, balanco()),
-        f"{pasta}/qa.json": qa_json(data, resultados),
-        f"history/surface-{pregoes_superficie}d.json": superficie_json(historico),
+        f"{pasta}/curve.json": titulos_json(df, data, cal, hoje, anterior),
+        f"{pasta}/vertices.json": vertices_json(data, hoje.curva, curva_ant),
+        f"{pasta}/forwards.json": forwards_json(data, hoje.curva),
+        f"{pasta}/risk.json": risco_json(data, hoje.curva, carteira()),
+        f"{pasta}/alm.json": alm_json(data, hoje.curva, balanco()),
+        f"{pasta}/qa.json": qa_json(data, verificacoes),
+        f"history/surface-{pregoes_superficie}d.json": superficie_json(
+            [(d, r.curva) for d, r in resultados.items()]
+        ),
     }
 
 
@@ -270,21 +301,36 @@ def escrever(arquivos: Mapping[str, Json], destino: Path, data: dt.date) -> list
     return escritos
 
 
+def podar(destino: Path, manter: int = DIAS_MANTIDOS) -> list[Path]:
+    """Apaga as pastas de dias mais antigas, mantendo as ``manter`` mais recentes."""
+    pastas = (
+        sorted(p for p in destino.iterdir() if p.is_dir() and p.name[:4].isdigit())
+        if destino.exists()
+        else []
+    )
+    removidas = pastas[:-manter] if manter > 0 else pastas
+    for pasta in removidas:
+        for arq in pasta.iterdir():
+            arq.unlink()
+        pasta.rmdir()
+    return removidas
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="Gera os JSON do contrato de dados para um pregão.")
+    p = argparse.ArgumentParser(description="Gera os JSON do contrato de dados para um dia.")
     p.add_argument(
-        "--data", type=dt.date.fromisoformat, help="data-base (padrão: último pregão salvo)"
+        "--data", type=dt.date.fromisoformat, help="data-base (padrão: último dia salvo)"
     )
-    p.add_argument(
-        "--raiz", type=Path, default=armazenamento.RAIZ_PADRAO, help="pasta dos dados brutos"
-    )
+    p.add_argument("--raiz", type=Path, default=RAIZ_PADRAO, help="pasta dos dados abertos")
     p.add_argument("--destino", type=Path, default=Path("data/api"), help="pasta de saída")
+    p.add_argument("--manter", type=int, default=DIAS_MANTIDOS, help="dias mantidos na pasta")
     args = p.parse_args(argv)
 
-    salvas = armazenamento.datas_salvas("b3_di1", args.raiz)
-    data = args.data or (salvas[-1] if salvas else None)
-    if data is None or data not in salvas:
-        print("Sem dados salvos para a data pedida.", file=sys.stderr)
+    arq = caminho_titulos(args.raiz)
+    datas = bcb_titulos.datas(bcb_titulos.de_csv(arq)) if arq.exists() else []
+    data = args.data or (datas[-1] if datas else None)
+    if data is None or data not in datas:
+        print("Sem dados para a data pedida.", file=sys.stderr)
         return 2
     try:
         arquivos = montar(data, args.raiz)
@@ -292,6 +338,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Nada gerado: {erro}.", file=sys.stderr)
         return 1
     escritos = escrever(arquivos, args.destino, data)
+    podar(args.destino, args.manter)
     print(f"{len(escritos)} arquivos em {args.destino} para {data:%d/%m/%Y}.")
     return 0
 

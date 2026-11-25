@@ -1,22 +1,20 @@
 name: Job diário
 
-# Depois do fechamento: coleta os ajustes do DI1 e o CDI/Selic, roda as verificações e
-# monta os JSON do contrato de dados. Se a coleta ou as verificações falharem, o job falha
-# (o GitHub avisa por e-mail) e nada é gerado.
-#
-# Publicação: desligada até a decisão 5 do plano (termos da B3). Os dados brutos ficam
-# só no cache do Actions, que não é baixável pelo site do GitHub; os JSON ficam no runner.
+# Dados abertos (BCB, licença ODbL): baixa as negociações de LTN e NTN-F no Selic e o CDI,
+# roda as verificações, monta os JSON do site e versiona tudo em data/.
+# O BCB publica o dia D na manhã de D+1; o job roda duas vezes para não depender do horário.
 on:
   schedule:
-    - cron: "17 0 * * 2-6"  # 21:17 em Brasília, de segunda a sexta
+    - cron: "17 11 * * 1-5"  # 08:17 em Brasília
+    - cron: "17 16 * * 1-5"  # 13:17 em Brasília
   workflow_dispatch:
     inputs:
       data:
-        description: "Data-base (AAAA-MM-DD). Vazio = hoje em Brasília."
+        description: "Data-base (AAAA-MM-DD). Vazio = dia útil anterior."
         required: false
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: job-diario
@@ -24,7 +22,7 @@ concurrency:
 
 jobs:
   diario:
-    name: Coleta, verificações e API
+    name: Atualizar, verificar e publicar
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -40,57 +38,40 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[data]"
 
-      - name: Recuperar dados brutos do cache
-        uses: actions/cache/restore@v4
-        with:
-          path: data/raw
-          key: raw-${{ github.run_id }}
-          restore-keys: raw-
-
-      - name: Data-base
-        id: data
-        run: echo "valor=${{ inputs.data || '' }}" >> "$GITHUB_OUTPUT"
-
-      - name: Coletar e verificar o dia
-        id: coleta
+      - name: Atualizar e verificar
+        id: atualizar
         run: |
-          DATA="${{ steps.data.outputs.valor }}"
-          DATA="${DATA:-$(TZ=America/Sao_Paulo date +%F)}"
-          echo "data=$DATA" >> "$GITHUB_OUTPUT"
+          ARG=""; [ -n "${{ inputs.data }}" ] && ARG="--data ${{ inputs.data }}"
           set +e
-          dicurve-atualizar --data "$DATA" --raiz data/raw
+          dicurve-atualizar $ARG
           codigo=$?
           set -e
-          if [ "$codigo" -eq 2 ]; then
-            echo "Sem pregão em $DATA: nada a fazer."
-            echo "pregao=nao" >> "$GITHUB_OUTPUT"
+          if [ "$codigo" -eq 3 ]; then
+            echo "O BCB ainda não publicou o dia; tenta de novo no próximo horário."
+            echo "publicar=nao" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "pregao=sim" >> "$GITHUB_OUTPUT"
+          echo "publicar=sim" >> "$GITHUB_OUTPUT"
           exit "$codigo"
 
-      - name: Completar o histórico (superfície de 120 pregões)
-        if: steps.coleta.outputs.pregao == 'sim'
-        continue-on-error: true
-        run: dicurve-backfill --pregoes 120 --ate "${{ steps.coleta.outputs.data }}" --raiz data/raw > /dev/null
-
-      - name: Montar os JSON
-        if: steps.coleta.outputs.pregao == 'sim'
+      - name: Montar os JSON do site
+        if: steps.atualizar.outputs.publicar == 'sim'
         run: |
-          dicurve-publicar --data "${{ steps.coleta.outputs.data }}" --raiz data/raw --destino _api
-          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          dicurve-publicar --destino data/api
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json, pathlib
-          latest = json.loads(pathlib.Path("_api/latest.json").read_text())
-          qa = json.loads(pathlib.Path(f"_api/{latest['data_base']}/qa.json").read_text())
-          print(f"### DI1 {latest['data_base']}: {'aprovado' if qa['aprovado'] else 'reprovado'}\n")
+          latest = json.loads(pathlib.Path("data/api/latest.json").read_text())
+          qa = json.loads(pathlib.Path(f"data/api/{latest['data_base']}/qa.json").read_text())
+          print(f"### Curva pré {latest['data_base']}: {'aprovada' if qa['aprovado'] else 'reprovada'}\n")
           for v in qa["verificacoes"]:
-              print(f"- {'ok' if v['ok'] else v['gravidade']}: {v['regra']}")
-          print(f"\n{len(latest['arquivos'])} arquivos montados; publicação desligada (decisão 5).")
-          EOF
+              print(f"- {'ok' if v['ok'] else v['gravidade']}: {v['regra']} ({v['detalhe']})")
+          PY
 
-      - name: Guardar dados brutos no cache
-        if: always() && steps.coleta.outputs.pregao == 'sim'
-        uses: actions/cache/save@v4
-        with:
-          path: data/raw
-          key: raw-${{ github.run_id }}
+      - name: Versionar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/abertos data/api
+          if git diff --cached --quiet; then echo "Sem mudanças."; exit 0; fi
+          git commit -m "Dados: atualização diária (BCB, ODbL)"
+          git push

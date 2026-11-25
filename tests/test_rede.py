@@ -5,12 +5,15 @@ import datetime as dt
 import pytest
 
 from dicurve.engine.calendario import CalendarioDU
-from dicurve.ingest import b3_di1, bcb
+from dicurve.ingest import b3_di1, bcb, bcb_titulos
 from dicurve.qa.verificacoes import aprovado, relatorio, verificar_di1
 
 pytestmark = pytest.mark.network
 
+b3 = pytest.mark.b3
 
+
+@b3
 @pytest.mark.parametrize(
     "data",
     [
@@ -26,6 +29,7 @@ def test_ajustes_reais_passam_nas_verificacoes(data: dt.date) -> None:
     assert all(r.ok for r in res if r.nome in {"dias_uteis", "pu_recalculado"})
 
 
+@b3
 def test_sem_regra_de_vigencia_o_du_de_2023_nao_bate() -> None:
     df = b3_di1.baixar_ajustes([dt.date(2023, 11, 1)])
     res = verificar_di1(df, CalendarioDU.anbima(considerar_vigencia=False))
@@ -37,3 +41,9 @@ def test_series_do_bcb() -> None:
         s = bcb.baixar_serie(codigo, dt.date(2026, 11, 1), dt.date(2026, 11, 23))
         assert not s.empty
         assert 0.02 < s.iloc[-1] < 0.30
+
+
+def test_negociacoes_de_titulos_do_bcb() -> None:
+    df = bcb_titulos.baixar_mes(2026, 10)
+    assert {"LTN", "NTN-F"} <= set(df["sigla"])
+    assert df["data_base"].nunique() >= 15

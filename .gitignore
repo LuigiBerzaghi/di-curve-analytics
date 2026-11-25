@@ -29,7 +29,4 @@ data/cache/
 .idea/
 .vscode/
 
-# JSON calculados com dados da B3: fora do Git até a decisão 5 do plano (termos da B3)
-data/api/*
-!data/api/.gitkeep
 _api/

@@ -17,8 +17,10 @@ dependencies = [
 
 [project.scripts]
 dicurve-atualizar = "dicurve.ingest.atualizar:main"
-dicurve-backfill = "dicurve.ingest.backfill:main"
 dicurve-publicar = "dicurve.publish.api:main"
+# DI1 da B3: só uso pessoal e validação local (termos da B3, plano seção 3)
+dicurve-b3-atualizar = "dicurve.ingest.b3_atualizar:main"
+dicurve-b3-backfill = "dicurve.ingest.b3_backfill:main"
 
 [project.optional-dependencies]
 data = [
@@ -49,6 +51,7 @@ testpaths = ["tests"]
 addopts = "-q --strict-markers"
 markers = [
     "network: testes que acessam fontes externas (B3, BCB); não rodam na CI por padrão",
+    "b3: testes com dados da B3 (só uso pessoal, rodar localmente)",
 ]
 
 [tool.ruff]
@@ -66,6 +69,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["N802", "N806"]
+"tests/test_bcb_titulos.py" = ["E501"]  # cabeçalho original do CSV do BCB
 
 [tool.mypy]
 python_version = "3.12"

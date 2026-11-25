@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
 
-Terminal de análise da curva de juros pré brasileira (DI1). Ele monta a curva a partir dos ajustes da B3, mede o risco de taxa de uma carteira, simula cenários e mostra o efeito no balanço (ALM).
+Terminal de análise da curva de juros pré brasileira. Ele monta a curva por bootstrapping a partir das LTN e NTN-F negociadas no mercado secundário (dados abertos do Banco Central), mede o risco de taxa de uma carteira, simula cenários e mostra o efeito no balanço (ALM).
 
 > 🚧 **Em construção.** O plano completo, com fases, cronograma e riscos, está em [`docs/07-plano-de-implementacao.md`](docs/07-plano-de-implementacao.md).
 
@@ -12,7 +12,7 @@ Terminal de análise da curva de juros pré brasileira (DI1). Ele monta a curva 
 
 | Módulo | Pergunta que responde |
 |---|---|
-| **Curva DI** | Qual a forma da curva hoje? Quais forwards ela embute? Como PU, taxa e fator de desconto se relacionam? Como ela se moveu nos últimos meses? |
+| **Curva pré** | Qual a forma da curva hoje? Quais forwards ela embute? Como PU, taxa e fator de desconto se relacionam? Como ela se moveu nos últimos meses? |
 | **Sensibilidades** | Quanto a carteira ganha ou perde por bp (DV01)? Em que vértice está o risco (key rate)? Qual a duration e a convexidade? |
 | **Cenários** | O que acontece com choques paralelos, mudanças de inclinação, cenários macro e choques montados vértice a vértice? |
 | **ALM** | Qual o descasamento de prazos e o efeito no valor econômico (EVE) e na margem (NII)? |
@@ -26,23 +26,24 @@ Terminal de análise da curva de juros pré brasileira (DI1). Ele monta a curva 
 | 0 · Fundação (estrutura, ferramentas, CI) | ✅ |
 | 1 · Motor de cálculo | ✅ |
 | 2 · Dados reais | ✅ |
-| 3 · Atualização diária automática | 🔄 |
-| 4 · Site no ar (Overview e Curva DI) | ⏳ |
+| 3 · Atualização diária automática (dados abertos do BCB) | 🔄 |
+| 4 · Site no ar (Overview e Curva) | ⏳ |
 | 5 · Todas as telas | ⏳ |
-| 6 · Intradiário com 15 min de atraso | ⏳ |
+| 6 · A definir (sem fonte aberta intradiária) | ⏳ |
 | 7 · Lançamento | ⏳ |
 
 ## Estrutura
 
 ```
 src/dicurve/
-  engine/    motor de cálculo: calendário, curva, forwards, risco, cenários, ALM
-  ingest/    coletores de dados públicos (B3, BCB, ANBIMA)
+  engine/    motor de cálculo: calendário, curva, títulos (LTN, NTN-F, bootstrapping), forwards, risco, cenários, ALM
+  ingest/    coletores: BCB (títulos e CDI); B3 só para validação local
   qa/        verificações de qualidade dos dados
   publish/   geração dos JSON que o site lê
   simulado.py  carteira e balanço simulados das telas de risco e ALM
 tests/       testes automatizados
-data/api/    JSON do site (vazio até a decisão sobre os termos da B3; os brutos nunca entram no Git)
+data/abertos/ dados abertos do BCB (ODbL), atualizados pelo job diário
+data/api/    JSON do site, gerados a partir de data/abertos
 web/         frontend (Vite + React + TypeScript, D3, Three.js)
 docs/        design system, metodologia, decisões e plano
 ```
@@ -57,14 +58,15 @@ make install   # instala o pacote em modo editável e os hooks de pre-commit
 make check     # lint, tipos e testes
 ```
 
-Coleta de dados reais (salva em `data/raw/`, fora do Git):
+Dados reais (dados abertos do BCB, em `data/abertos/`):
 
 ```bash
-dicurve-atualizar --data 2026-11-23   # um pregão: baixa, salva e roda as 6 verificações
-dicurve-backfill --pregoes 250        # últimos 250 pregões, pulando os já salvos
-dicurve-publicar --destino data/api   # monta os JSON do contrato de dados (só se o dia for aprovado)
-pytest -m network                     # testes contra B3 e BCB
+dicurve-atualizar                     # baixa LTN, NTN-F e CDI e verifica o último dia
+dicurve-publicar --destino data/api   # monta os JSON do site (só se o dia for aprovado)
+pytest -m "network and not b3"        # testes contra o BCB
 ```
+
+O código do DI1 da B3 (`dicurve-b3-atualizar`, `dicurve-b3-backfill`) continua no repositório para validação local e uso pessoal; nada calculado com dados da B3 é publicado.
 
 ## Documentação
 
@@ -75,7 +77,12 @@ pytest -m network                     # testes contra B3 e BCB
 
 ## Fontes de dados
 
-Os dados de mercado vêm de fontes públicas: B3 (ajustes do DI1), Banco Central (SGS) e ANBIMA (calendário de feriados). Os arquivos brutos não são versionados. Os termos da B3 restringem a publicação de dados de mercado e de dados derivados deles; por isso, a publicação dos números calculados com dados da B3 está desligada até uma decisão registrada no [plano](docs/07-plano-de-implementacao.md), seção 3.
+Tudo o que é publicado vem de **dados abertos do Banco Central do Brasil**, sob a [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/):
+
+- [Negociação de Títulos Federais no Mercado Secundário](https://dadosabertos.bcb.gov.br/dataset/negociacao-de-titulos-federais-no-mercado-secundario): taxas e PUs de LTN e NTN-F negociadas no Selic;
+- SGS, série 4389: CDI anualizado.
+
+Os recortes e os dados derivados publicados aqui (`data/abertos/`, `data/api/`) também ficam sob a ODbL, com a fonte citada. Os ajustes do DI1 da B3 não são publicados: os termos da B3 restringem a publicação de dados de mercado e de dados derivados deles ([plano, seção 3](docs/07-plano-de-implementacao.md)).
 
 ## Aviso
 

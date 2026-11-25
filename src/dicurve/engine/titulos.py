@@ -126,19 +126,29 @@ class Ntnf:
 @dataclass(frozen=True)
 class ResultadoBootstrap:
     curva: CurvaPre
-    #: Vencimento → "LTN" ou "NTN-F": de onde saiu cada vértice.
+    #: DU do vértice → "CDI", "LTN" ou "NTN-F": de onde saiu cada vértice.
     origem: dict[int, str]
     #: NTN-F que não entraram (vencem dentro da curva das LTN): erro de preço em R$.
     erros_ntnf: dict[dt.date, float]
 
 
-def bootstrap(ltns: Sequence[Ltn], ntnfs: Sequence[Ntnf]) -> ResultadoBootstrap:
-    """Curva pré a partir das LTN e das NTN-F que vencem depois da última LTN."""
+def bootstrap(
+    ltns: Sequence[Ltn], ntnfs: Sequence[Ntnf], *, ancora_cdi: float | None = None
+) -> ResultadoBootstrap:
+    """Curva pré a partir das LTN e das NTN-F que vencem depois da última LTN.
+
+    Com ``ancora_cdi``, o CDI entra como vértice de 1 DU: sem ele, antes da primeira LTN
+    (em geral a 3 ou 4 meses) a curva repetiria a taxa dessa LTN.
+    """
     if not ltns:
         raise ValueError("é preciso ao menos uma LTN")
     du = [float(x.du) for x in ltns]
     taxas = [x.taxa for x in ltns]
     origem = {x.du: "LTN" for x in ltns}
+    if ancora_cdi is not None and min(du) > 1:
+        du.insert(0, 1.0)
+        taxas.insert(0, ancora_cdi)
+        origem[1] = "CDI"
     curva = CurvaPre(du, taxas)
     erros: dict[dt.date, float] = {}
     for n in sorted(ntnfs, key=lambda x: x.du):

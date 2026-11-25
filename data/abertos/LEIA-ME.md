@@ -1,14 +1,14 @@
 # Dados abertos da curva prefixada
 
-Recortes versionados pelo workflow `.github/workflows/dados-abertos.yml`, no formato original
-de cada fonte (separador `;`, decimal `,`, datas `dd/mm/aaaa`).
+Atualizados pelo job diário (`.github/workflows/diario.yml`, comando `dicurve-atualizar`).
 
-| Arquivo | Fonte | Licença |
-|---|---|---|
-| `bcb_prefixados.csv` | Banco Central do Brasil, [Negociação de Títulos Federais no Mercado Secundário](https://dadosabertos.bcb.gov.br/dataset/negociacao-de-titulos-federais-no-mercado-secundario) (operações definitivas registradas no Selic, extragrupo). Recorte: LTN e NTN-F. | ODbL |
-| `bcb_cdi_4389.json` | Banco Central do Brasil, SGS série 4389 (CDI anualizado, base 252), últimos 2 anos. | ODbL |
-| `tesouro_prefixados.csv` | Tesouro Nacional, [Taxas dos Títulos Ofertados pelo Tesouro Direto](https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3). Recorte: prefixados desde 2020. | ODbL |
+| Arquivo | Conteúdo | Fonte | Licença |
+|---|---|---|---|
+| `titulos.csv` | Negociações definitivas de LTN e NTN-F no Selic, por dia e vencimento: operações, quantidade, PU mínimo/médio/máximo e taxas (só LTN). Taxas em fração. | Banco Central do Brasil, [Negociação de Títulos Federais no Mercado Secundário](https://dadosabertos.bcb.gov.br/dataset/negociacao-de-titulos-federais-no-mercado-secundario) (operações extragrupo) | ODbL |
+| `cdi.csv` | CDI anualizado, base 252, em fração. | Banco Central do Brasil, SGS série 4389 | ODbL |
 
-Os dois conjuntos estão sob a [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
-Estes recortes e os dados derivados deles publicados neste repositório também ficam sob a ODbL,
-com a fonte citada.
+Formato: separador `;`, decimal `.`, datas ISO. Desde dez/2024.
+
+Os dados do BCB estão sob a [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
+Estes recortes e os dados derivados deles publicados neste repositório também ficam sob a
+ODbL, com a fonte citada.
