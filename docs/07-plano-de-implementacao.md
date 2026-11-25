@@ -41,6 +41,8 @@
 2. [Política de Consumo de Market Data](https://www.b3.com.br/data/files/0D/97/1F/B7/4CCFF91094DCD8F9AC094EA8/Politica%20de%20Consumo%20de%20Market%20Data%20B3%20V1.1.pdf), item 3.3.2: dados de fim de dia e com atraso podem aparecer em gráficos e tabelas informacionais, mas não se pode permitir download. Em site aberto, o atraso cobre só alguns campos (último preço, preço de referência ou variação, mínima e máxima, volume, contratos em aberto).
 3. Mesma política, item 13 e Anexo I: criar taxas, índices ou "qualquer outro dado derivado" a partir desses dados exige consentimento da B3.
 
+O texto é o mesmo na [versão 1.2.1 de 2026](https://b3.com.br/data/files/75/95/28/D6/9D881A10F75B881AAC094EA8/Market%20Data%20B3%20Consumption%20Policy%20V1.2.1.pdf) (em inglês), que também não traz exceção para uso pessoal, educacional ou não comercial. Contato da B3 para contratação e licenças: contratacao@b3.com.br, (11) 2565-5080.
+
 **Consequência:** "publicar só métricas derivadas" não resolve, porque a política também cobre dado derivado. Até a decisão 5 (seção 11), nenhum JSON calculado com dados da B3 vai para o repositório público: o job diário coleta, verifica e monta os arquivos, mas a publicação fica desligada. Os arquivos brutos continuam fora do Git (`data/raw/` no `.gitignore`).
 
 ## 4. Princípio do projeto: motor próprio, validado contra referência
@@ -207,7 +209,7 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 | 2 | Repositório público ou privado | ✅ Público desde o primeiro commit |
 | 3 | Nome do repositório e domínio | Proposta: `di-curve-analytics` no GitHub Pages |
 | 4 | Hospedagem do frontend | Proposta: GitHub Pages; Vercel se precisar de algo dinâmico depois |
-| 5 | Publicação de dados da B3 | ⏳ Pendente. Opções: pedir autorização por escrito à B3; publicar só gráficos, sem JSON para download; ou trocar a curva por uma fonte de dados abertos |
+| 5 | Publicação de dados da B3 | 🔄 Escolhido em 25/11/2026: pedir autorização por escrito à B3 (contratacao@b3.com.br). Até a resposta, o site é desenvolvido com dados só na máquina local e nada é publicado. Plano B: curva pré com dados abertos do Tesouro |
 
 ## 12. Status
 
