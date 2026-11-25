@@ -1,0 +1,66 @@
+{
+ "versao": 1,
+ "data_base": "2026-11-24",
+ "fonte": "BCB, negociações de títulos federais no Selic (ODbL); cálculo próprio",
+ "vertices": [
+  {
+   "prazo": "1M",
+   "du": 21,
+   "taxa": 0.138934,
+   "delta_bps": 6.16
+  },
+  {
+   "prazo": "3M",
+   "du": 63,
+   "taxa": 0.139015,
+   "delta_bps": 6.36
+  },
+  {
+   "prazo": "6M",
+   "du": 126,
+   "taxa": 0.141868,
+   "delta_bps": 11.47
+  },
+  {
+   "prazo": "1A",
+   "du": 252,
+   "taxa": 0.145753,
+   "delta_bps": 0.37
+  },
+  {
+   "prazo": "2A",
+   "du": 504,
+   "taxa": 0.151567,
+   "delta_bps": -9.86
+  },
+  {
+   "prazo": "3A",
+   "du": 756,
+   "taxa": 0.154554,
+   "delta_bps": -11.87
+  },
+  {
+   "prazo": "5A",
+   "du": 1260,
+   "taxa": 0.155754,
+   "delta_bps": 1.67
+  },
+  {
+   "prazo": "7A",
+   "du": 1764,
+   "taxa": 0.157572,
+   "delta_bps": 11.32
+  },
+  {
+   "prazo": "10A",
+   "du": 2520,
+   "taxa": 0.154419,
+   "delta_bps": 21.25
+  }
+ ],
+ "forma": {
+  "nivel": 0.151567,
+  "inclinacao_bps": 28.52,
+  "curvatura_bps": -28.27
+ }
+}

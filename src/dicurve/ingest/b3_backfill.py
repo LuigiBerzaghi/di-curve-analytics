@@ -1,8 +1,8 @@
 """Backfill: baixa e verifica os ajustes do DI1 dos últimos N pregões.
 
 Uso:
-    dicurve-backfill                       # 250 pregões até o último dia útil
-    dicurve-backfill --pregoes 60 --ate 2026-11-23
+    dicurve-b3-backfill                       # 250 pregões até o último dia útil
+    dicurve-b3-backfill --pregoes 60 --ate 2026-11-23
 
 Pula as datas já salvas. Cada dia passa pelas mesmas verificações da coleta diária,
 usando o pregão anterior para a verificação de variação. Imprime uma linha por dia e
@@ -21,7 +21,7 @@ import pandas as pd
 
 from dicurve.engine.calendario import CalendarioDU
 from dicurve.ingest import armazenamento, b3_di1
-from dicurve.ingest.atualizar import ultimo_pregao
+from dicurve.ingest.b3_atualizar import ultimo_pregao
 from dicurve.qa.verificacoes import aprovado, verificar_di1
 
 

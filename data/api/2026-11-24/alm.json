@@ -1,0 +1,75 @@
+{
+ "versao": 1,
+ "data_base": "2026-11-24",
+ "fonte": "Simulado sobre a curva de BCB, negociações de títulos federais no Selic (ODbL); cálculo próprio",
+ "faixas": [
+  {
+   "nome": "≤ 3M",
+   "du_medio": 32,
+   "ativos": 52400000000.0,
+   "passivos": 58200000000.0,
+   "gap": -5800000000.0
+  },
+  {
+   "nome": "3–12M",
+   "du_medio": 151,
+   "ativos": 38100000000.0,
+   "passivos": 41500000000.0,
+   "gap": -3400000000.0
+  },
+  {
+   "nome": "1–2A",
+   "du_medio": 378,
+   "ativos": 44700000000.0,
+   "passivos": 30900000000.0,
+   "gap": 13800000000.0
+  },
+  {
+   "nome": "2–5A",
+   "du_medio": 882,
+   "ativos": 61300000000.0,
+   "passivos": 47800000000.0,
+   "gap": 13500000000.0
+  },
+  {
+   "nome": "> 5A",
+   "du_medio": 1890,
+   "ativos": 27600000000.0,
+   "passivos": 19400000000.0,
+   "gap": 8200000000.0
+  }
+ ],
+ "duration_gap": 0.4892,
+ "choques": [
+  {
+   "bps": -200,
+   "delta_eve": 2315473597.0,
+   "delta_nii_12m": 128523810.0
+  },
+  {
+   "bps": -100,
+   "delta_eve": 1126317430.0,
+   "delta_nii_12m": 64261905.0
+  },
+  {
+   "bps": -50,
+   "delta_eve": 555577817.0,
+   "delta_nii_12m": 32130952.0
+  },
+  {
+   "bps": 50,
+   "delta_eve": -540935977.0,
+   "delta_nii_12m": -32130952.0
+  },
+  {
+   "bps": 100,
+   "delta_eve": -1067728964.0,
+   "delta_nii_12m": -64261905.0
+  },
+  {
+   "bps": 200,
+   "delta_eve": -2080781589.0,
+   "delta_nii_12m": -128523810.0
+  }
+ ]
+}

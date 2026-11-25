@@ -1,0 +1,239 @@
+{
+ "versao": 1,
+ "data_base": "2026-11-24",
+ "fonte": "BCB, negociações de títulos federais no Selic (ODbL); cálculo próprio",
+ "titulos": [
+  {
+   "sigla": "LTN",
+   "vencimento": "2027-04-01",
+   "du": 87,
+   "taxa": 0.139026,
+   "pu_medio": 956.053964,
+   "operacoes": 18,
+   "quantidade": 603566,
+   "delta_bps": 6.39
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2027-07-01",
+   "du": 150,
+   "taxa": 0.142884,
+   "pu_medio": 923.580655,
+   "operacoes": 8,
+   "quantidade": 6362,
+   "delta_bps": 12.67
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2027-10-01",
+   "du": 215,
+   "taxa": 0.143679,
+   "pu_medio": 891.777115,
+   "operacoes": 13,
+   "quantidade": 728632,
+   "delta_bps": -6.82
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2028-01-01",
+   "du": 278,
+   "taxa": 0.146882,
+   "pu_medio": 859.68641,
+   "operacoes": 30,
+   "quantidade": 3024495,
+   "delta_bps": 3.78
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2028-04-01",
+   "du": 341,
+   "taxa": 0.146467,
+   "pu_medio": 831.138363,
+   "operacoes": 8,
+   "quantidade": 1048134,
+   "delta_bps": -18.78
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2028-10-01",
+   "du": 466,
+   "taxa": 0.151052,
+   "pu_medio": 770.943843,
+   "operacoes": 21,
+   "quantidade": 1534200,
+   "delta_bps": -10.65
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2029-01-01",
+   "du": 526,
+   "taxa": 0.151831,
+   "pu_medio": 744.496466,
+   "operacoes": 20,
+   "quantidade": 1962135,
+   "delta_bps": -9.62
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2029-07-01",
+   "du": 650,
+   "taxa": 0.153109,
+   "pu_medio": 692.488961,
+   "operacoes": 15,
+   "quantidade": 643412,
+   "delta_bps": -15.57
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2030-01-01",
+   "du": 775,
+   "taxa": 0.154771,
+   "pu_medio": 642.391621,
+   "operacoes": 22,
+   "quantidade": 1167228,
+   "delta_bps": -11.42
+  },
+  {
+   "sigla": "LTN",
+   "vencimento": "2032-01-01",
+   "du": 1279,
+   "taxa": 0.155777,
+   "pu_medio": 479.609508,
+   "operacoes": 59,
+   "quantidade": 5177381,
+   "delta_bps": 1.98
+  },
+  {
+   "sigla": "NTN-F",
+   "vencimento": "2027-01-01",
+   "du": 27,
+   "taxa": 0.13713,
+   "pu_medio": 1034.467125,
+   "operacoes": 12,
+   "quantidade": 52710,
+   "delta_bps": 4.94
+  },
+  {
+   "sigla": "NTN-F",
+   "vencimento": "2029-01-01",
+   "du": 526,
+   "taxa": 0.152225,
+   "pu_medio": 953.893229,
+   "operacoes": 20,
+   "quantidade": 333406,
+   "delta_bps": 24.33
+  },
+  {
+   "sigla": "NTN-F",
+   "vencimento": "2031-01-01",
+   "du": 1027,
+   "taxa": 0.155602,
+   "pu_medio": 885.083897,
+   "operacoes": 52,
+   "quantidade": 4746096,
+   "delta_bps": 10.09
+  },
+  {
+   "sigla": "NTN-F",
+   "vencimento": "2033-01-01",
+   "du": 1531,
+   "taxa": 0.156548,
+   "pu_medio": 833.577366,
+   "operacoes": 38,
+   "quantidade": 1048812,
+   "delta_bps": 11.35
+  },
+  {
+   "sigla": "NTN-F",
+   "vencimento": "2035-01-01",
+   "du": 2030,
+   "taxa": 0.156682,
+   "pu_medio": 797.288235,
+   "operacoes": 20,
+   "quantidade": 330559,
+   "delta_bps": 5.06
+  },
+  {
+   "sigla": "NTN-F",
+   "vencimento": "2037-01-01",
+   "du": 2532,
+   "taxa": 0.154804,
+   "pu_medio": 777.16868,
+   "operacoes": 54,
+   "quantidade": 2056750,
+   "delta_bps": 14.3
+  }
+ ],
+ "vertices_curva": [
+  {
+   "du": 1,
+   "taxa": 0.1365,
+   "origem": "CDI"
+  },
+  {
+   "du": 87,
+   "taxa": 0.139026,
+   "origem": "LTN"
+  },
+  {
+   "du": 150,
+   "taxa": 0.142884,
+   "origem": "LTN"
+  },
+  {
+   "du": 215,
+   "taxa": 0.143679,
+   "origem": "LTN"
+  },
+  {
+   "du": 278,
+   "taxa": 0.146882,
+   "origem": "LTN"
+  },
+  {
+   "du": 341,
+   "taxa": 0.146467,
+   "origem": "LTN"
+  },
+  {
+   "du": 466,
+   "taxa": 0.151052,
+   "origem": "LTN"
+  },
+  {
+   "du": 526,
+   "taxa": 0.151831,
+   "origem": "LTN"
+  },
+  {
+   "du": 650,
+   "taxa": 0.153109,
+   "origem": "LTN"
+  },
+  {
+   "du": 775,
+   "taxa": 0.154771,
+   "origem": "LTN"
+  },
+  {
+   "du": 1279,
+   "taxa": 0.155777,
+   "origem": "LTN"
+  },
+  {
+   "du": 1531,
+   "taxa": 0.157559,
+   "origem": "NTN-F"
+  },
+  {
+   "du": 2030,
+   "taxa": 0.157583,
+   "origem": "NTN-F"
+  },
+  {
+   "du": 2532,
+   "taxa": 0.154357,
+   "origem": "NTN-F"
+  }
+ ]
+}

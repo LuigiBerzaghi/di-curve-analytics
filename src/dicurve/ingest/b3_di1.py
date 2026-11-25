@@ -15,7 +15,7 @@ from typing import Any
 import pandas as pd
 
 from dicurve.engine.calendario import CalendarioDU
-from dicurve.engine.curva import CurvaDI
+from dicurve.engine.curva import CurvaPre
 
 #: Coluna do PYield -> coluna do projeto.
 COLUNAS: dict[str, str] = {
@@ -72,11 +72,11 @@ def baixar_ajustes(datas: Sequence[dt.date]) -> pd.DataFrame:
     return normalizar(bruto.to_dicts())
 
 
-def curva_de_ajustes(df: pd.DataFrame) -> CurvaDI:
+def curva_de_ajustes(df: pd.DataFrame) -> CurvaPre:
     """Curva DI de uma data-base a partir das taxas de ajuste (ignora linhas sem taxa)."""
     datas = df["data_base"].unique()
     if len(datas) != 1:
         raise ValueError(f"esperada uma única data-base, recebidas {len(datas)}")
     validos = df.dropna(subset=["taxa_ajuste", "du_b3"])
     validos = validos[validos["du_b3"] > 0]
-    return CurvaDI(validos["du_b3"].astype(float), validos["taxa_ajuste"].astype(float))
+    return CurvaPre(validos["du_b3"].astype(float), validos["taxa_ajuste"].astype(float))

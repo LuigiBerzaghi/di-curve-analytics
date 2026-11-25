@@ -11,7 +11,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from dicurve.engine.calendario import CalendarioDU, feriados_nacionais
-from dicurve.engine.curva import CurvaDI
+from dicurve.engine.curva import CurvaPre
 from dicurve.engine.forwards import taxa_forward
 
 bizdays = pytest.importorskip("bizdays")
@@ -52,7 +52,7 @@ VERT_TX = [0.1446, 0.1412, 0.1374, 0.1349, 0.1334, 0.1327, 0.1326, 0.1329, 0.133
 
 
 def test_flat_forward_igual_ao_interpolador_do_pyield() -> None:
-    nossa = CurvaDI(VERT_DU, VERT_TX)
+    nossa = CurvaPre(VERT_DU, VERT_TX)
     ref = yd.Interpolador(VERT_DU, VERT_TX, metodo="flat_forward", extrapolar=True)
     for du in [1, 10, 32, 100, 283, 400, 777, 1500, 2600, 3302, 4000]:
         assert nossa.taxa(float(du)) == pytest.approx(float(ref(du)), abs=1e-12), du
@@ -65,7 +65,7 @@ def test_forward_igual_ao_pyield(d1: int, extra: int, t1: float, t2: float) -> N
 
 
 def test_curva_vetorizada_igual_ao_pyield() -> None:
-    nossa = CurvaDI(VERT_DU, VERT_TX)
+    nossa = CurvaPre(VERT_DU, VERT_TX)
     ref = yd.Interpolador(VERT_DU, VERT_TX, metodo="flat_forward", extrapolar=True)
     grade = np.arange(1, 3500, 7)
     esperado = np.array([float(ref(int(d))) for d in grade])

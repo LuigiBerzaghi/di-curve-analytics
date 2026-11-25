@@ -31,3 +31,11 @@
 | 27 | 25/11/2026 | Job diário às 21:17 (Brasília), com os brutos guardados no cache do Actions | Dá margem para a B3 divulgar os ajustes; o cache não é baixável pelo site do GitHub, então os brutos não ficam públicos. |
 | 28 | 25/11/2026 | Publicação desligada até a decisão 5; o job coleta, verifica e monta os JSON, mas não versiona nada | Os termos da B3 restringem publicação, download e dado derivado (plano, seção 3). |
 | 29 | 25/11/2026 | `latest.json` é gravado por último e só se as verificações forem aprovadas | O site nunca lê um dia pela metade nem um dia reprovado. |
+| 30 | 25/11/2026 | Trocar a fonte publicada da B3 por dados abertos do BCB (licença ODbL) | Os termos da B3 exigem autorização para publicar dados e derivados; com o BCB o site pode ser público sem pedido. |
+| 31 | 25/11/2026 | Fonte: negociações definitivas de LTN e NTN-F no Selic (extragrupo), não as taxas do Tesouro Direto | O Tesouro Transparente recusa conexões dos servidores do GitHub; os dados do BCB são de mercado secundário, sem a margem do Tesouro Direto. |
+| 32 | 25/11/2026 | Curva pré por bootstrapping: CDI em 1 DU, LTN direto, NTN-F além da última LTN | LTN dão a taxa zero direto; as NTN-F estendem a curva até ~10 anos; o CDI ancora a ponta curta. |
+| 33 | 25/11/2026 | NTN-F dentro da faixa das LTN viram checagem, não vértice | Misturar as duas no mesmo prazo criaria saltos na forward; a diferença mede a coerência entre os títulos. |
+| 34 | 25/11/2026 | Limites das verificações calibrados em 496 dias: NTN-F 25 bps e variação 50 bps como alerta | Nenhum dia reprovado e cerca de 5% e 2% de alertas, respectivamente. |
+| 35 | 25/11/2026 | Dados abertos e JSON do site versionados no repositório; 20 dias de JSON guardados | A ODbL permite redistribuir com a fonte citada; o site estático lê direto do repositório. |
+| 36 | 25/11/2026 | DI1 da B3 só para validação local (marcador `b3` nos testes) | O código e os testes continuam úteis para conferir o motor, sem publicar dados da B3. |
+| 37 | 25/11/2026 | Classe `CurvaDI` renomeada para `CurvaPre` | A mesma curva serve para DI1 e títulos públicos. |

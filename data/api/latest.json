@@ -1,0 +1,13 @@
+{
+ "versao": 1,
+ "data_base": "2026-11-24",
+ "arquivos": [
+  "2026-11-24/alm.json",
+  "2026-11-24/curve.json",
+  "2026-11-24/forwards.json",
+  "2026-11-24/qa.json",
+  "2026-11-24/risk.json",
+  "2026-11-24/vertices.json",
+  "history/surface-120d.json"
+ ]
+}

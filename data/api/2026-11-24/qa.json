@@ -1,0 +1,50 @@
+{
+ "versao": 1,
+ "data_base": "2026-11-24",
+ "fonte": "BCB, negociações de títulos federais no Selic (ODbL); cálculo próprio",
+ "aprovado": true,
+ "verificacoes": [
+  {
+   "nome": "titulos_suficientes",
+   "regra": "Ao menos 4 LTN e curva até 1260 DU",
+   "ok": true,
+   "gravidade": "erro",
+   "detalhe": "10 LTN, 6 NTN-F, curva até 2532 DU"
+  },
+  {
+   "nome": "banda_taxa",
+   "regra": "Taxas entre 2% e 30% a.a.",
+   "ok": true,
+   "gravidade": "erro",
+   "detalhe": "13.713% a 15.668%"
+  },
+  {
+   "nome": "pu_recalculado",
+   "regra": "PU das LTN a até R$ 0.01 do divulgado pelo BCB",
+   "ok": true,
+   "gravidade": "erro",
+   "detalhe": "maior diferença R$ 0.0003 em 10 LTN"
+  },
+  {
+   "nome": "sem_arbitragem",
+   "regra": "Todas as forwards entre vértices positivas",
+   "ok": true,
+   "gravidade": "erro",
+   "detalhe": "todas positivas"
+  },
+  {
+   "nome": "ntnf_coerente",
+   "regra": "NTN-F a até 25 bps da curva das LTN",
+   "ok": true,
+   "gravidade": "alerta",
+   "detalhe": "maior desvio 18.3 bps"
+  },
+  {
+   "nome": "variacao_diaria",
+   "regra": "Vértices de 1A a 10A variando até 50 bps",
+   "ok": true,
+   "gravidade": "alerta",
+   "detalhe": "maior variação 21.2 bps"
+  }
+ ]
+}

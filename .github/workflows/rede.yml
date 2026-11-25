@@ -1,8 +1,10 @@
 name: Dados reais
 
-# Roda os testes marcados com @pytest.mark.network contra B3 e BCB.
+# Roda os testes marcados com @pytest.mark.network contra o BCB (os da B3 ficam só locais).
 # Não bloqueia PRs: fontes externas podem estar fora do ar.
 on:
+  push:
+    paths: ["src/dicurve/ingest/**", ".github/workflows/rede.yml"]
   workflow_dispatch:
   schedule:
     - cron: "17 12 * * 1"  # segundas, 09:17 em Brasília
@@ -12,7 +14,7 @@ permissions:
 
 jobs:
   rede:
-    name: B3 e BCB
+    name: BCB
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,4 +27,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev,data]"
       - name: Pytest (rede)
-        run: pytest -m network -v
+        run: pytest -m "network and not b3" -v
+      - name: Atualização de ponta a ponta (pasta temporária)
+        run: |
+          cp -r data/abertos /tmp/abertos
+          set +e; dicurve-atualizar --raiz /tmp/abertos; c=$?; set -e
+          echo "código de saída: $c"; [ "$c" -eq 0 ] || [ "$c" -eq 3 ]

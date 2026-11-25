@@ -8,7 +8,9 @@ import pytest
 
 from conftest import DATA_BASE, registros_pyield
 from dicurve.engine.calendario import CalendarioDU
-from dicurve.ingest import armazenamento, atualizar, b3_di1, backfill, bcb
+from dicurve.ingest import armazenamento, b3_di1, bcb
+from dicurve.ingest import b3_atualizar as atualizar
+from dicurve.ingest import b3_backfill as backfill
 
 # ---------- B3 ----------
 

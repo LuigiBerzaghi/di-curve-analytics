@@ -60,7 +60,7 @@ def taxa_de_pu[Num: (float, Vetor)](pu: Num, du: Num, face: float = FACE_DI1) ->
     return taxa
 
 
-class CurvaDI:
+class CurvaPre:
     """Curva de taxas pré definida por vértices (DU, taxa), com interpolação flat-forward."""
 
     def __init__(self, du: ArrayLike, taxas: ArrayLike) -> None:
@@ -92,7 +92,7 @@ class CurvaDI:
         return int(self._du.size)
 
     def __repr__(self) -> str:
-        return f"CurvaDI({len(self)} vértices, du {self._du[0]:.0f}–{self._du[-1]:.0f})"
+        return f"CurvaPre({len(self)} vértices, du {self._du[0]:.0f}–{self._du[-1]:.0f})"
 
     def _log_fator_em(self, du: Vetor) -> Vetor:
         ultimo = self._du[-1]
@@ -133,9 +133,9 @@ class CurvaDI:
         taxas = self.taxa(prazos)
         return dict(zip(VERTICES_PADRAO, (float(t) for t in taxas), strict=True))
 
-    def com_taxas(self, taxas: ArrayLike) -> CurvaDI:
+    def com_taxas(self, taxas: ArrayLike) -> CurvaPre:
         """Nova curva com os mesmos vértices e outras taxas."""
-        return CurvaDI(self._du, taxas)
+        return CurvaPre(self._du, taxas)
 
 
 def _como_entrada[Num: (float, Vetor)](resultado: Vetor, entrada: Num) -> Num:
