@@ -20,7 +20,7 @@
 | Entra no MVP | Fica para depois |
 |---|---|
 | Curva pré de fechamento (histórico + diário) | Curva intradiária (não há fonte aberta) |
-| Motor: PU, taxa, fator, flat-forward, forwards, spreads | Curva de títulos públicos (LTN/NTN-F) |
+| Motor: PU, taxa, fator, flat-forward, forwards, spreads | Curva DI1 publicada (exige autorização da B3) |
 | DV01, key rate, duration, convexidade | EVE/NII por produto |
 | Choques paralelos, inclinação, macro, personalizado | Tela "Sobre o projeto" (vira a página do README) |
 | ALM visão geral com balanço simulado | Login, carteiras do usuário |
@@ -81,7 +81,7 @@ GitHub Actions (agendado)          Repositório                      GitHub Page
 ```
 data/api/
   latest.json                  → aponta para a última data-base
-  2026-11-24/curve.json        → contratos: código, vencimento, DU, taxa, PU, Δ
+  2026-11-24/curve.json        → títulos (sigla, vencimento, DU, taxa, PU, Δ) e vértices da curva
   2026-11-24/vertices.json     → vértices padrão interpolados (1M…10A)
   2026-11-24/forwards.json
   2026-11-24/risk.json         → DV01, key rate, duration, convexidade (carteira simulada)
@@ -96,7 +96,7 @@ data/api/
 |---|---|---|
 | Linguagem do motor | Python 3.12 | Base do protótipo; é a linguagem do curso de CDIA |
 | Dados | pandas · numpy · Parquet | Padrão de mercado |
-| Coleta | PYield · requests | PYield já resolve B3 e BCB |
+| Coleta | requests (BCB) · PYield só na validação local | Dados abertos do BCB; PYield para conferir contra a B3 |
 | Dias úteis | bizdays (ANBIMA) | Biblioteca madura, com validação cruzada |
 | Testes | pytest · hypothesis (propriedades) | Ex.: PU→taxa→PU sempre volta ao mesmo valor |
 | Qualidade | ruff · mypy · pre-commit | Código limpo conta no portfólio |
