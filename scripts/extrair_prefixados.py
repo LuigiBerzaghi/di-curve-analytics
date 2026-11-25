@@ -7,13 +7,14 @@ Mantém o formato original (separador ';', decimal ','). Uso no workflow:
 import csv
 import datetime as dt
 import sys
+from pathlib import Path
 
 PREFIXADOS = {"Tesouro Prefixado", "Tesouro Prefixado com Juros Semestrais"}
 
 
 def main(entrada: str, saida: str, desde: str) -> None:
     corte = dt.date.fromisoformat(desde)
-    bruto = open(entrada, "rb").read()
+    bruto = Path(entrada).read_bytes()
     try:
         texto = bruto.decode("utf-8-sig")
     except UnicodeDecodeError:
@@ -24,8 +25,10 @@ def main(entrada: str, saida: str, desde: str) -> None:
     tipos = sorted({r[i_tipo] for r in dados if r})
     print("tipos:", tipos)
     manter = [
-        r for r in dados
-        if r and r[i_tipo] in PREFIXADOS
+        r
+        for r in dados
+        if r
+        and r[i_tipo] in PREFIXADOS
         and dt.datetime.strptime(r[i_base], "%d/%m/%Y").date() >= corte
     ]
     manter.sort(key=lambda r: (dt.datetime.strptime(r[i_base], "%d/%m/%Y"), r[i_tipo], r[1]))

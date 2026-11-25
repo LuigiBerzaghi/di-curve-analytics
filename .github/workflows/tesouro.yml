@@ -20,9 +20,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Testar acesso
+        continue-on-error: true
+        run: |
+          for u in https://www.tesourotransparente.gov.br/ https://www.tesourotransparente.gov.br/ckan/api/3/action/package_show?id=df56aa42-484a-4a59-8184-7676580c81e3 https://www.tesourodireto.com.br/ https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json; do
+            echo "== $u"; curl -sS -m 30 -A "Mozilla/5.0" -o /dev/null -w "%{http_code} %{remote_ip}\n" "$u" || true
+          done
       - name: Baixar a base do Tesouro Direto
         run: |
-          curl -fsSL --retry 3 -o /tmp/td.csv \
+          curl -fsSL --retry 5 --retry-all-errors --retry-delay 10 -A "Mozilla/5.0" -o /tmp/td.csv \
             "https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/precotaxatesourodireto.csv"
           head -c 400 /tmp/td.csv | iconv -f latin1 -t utf-8 || true
       - name: Filtrar prefixados
