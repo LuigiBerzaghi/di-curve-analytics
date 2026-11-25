@@ -24,8 +24,8 @@ Terminal de análise da curva de juros pré brasileira (DI1). Ele monta a curva 
 |---|---|
 | Design (21 telas, design system, metodologia) | ✅ |
 | 0 · Fundação (estrutura, ferramentas, CI) | ✅ |
-| 1 · Motor de cálculo | 🔄 |
-| 2 · Dados reais | ⏳ |
+| 1 · Motor de cálculo | ✅ |
+| 2 · Dados reais | 🔄 |
 | 3 · Atualização diária automática | ⏳ |
 | 4 · Site no ar (Overview e Curva DI) | ⏳ |
 | 5 · Todas as telas | ⏳ |
@@ -56,6 +56,14 @@ make install   # instala o pacote em modo editável e os hooks de pre-commit
 make check     # lint, tipos e testes
 ```
 
+Coleta de dados reais (salva em `data/raw/`, fora do Git):
+
+```bash
+dicurve-atualizar --data 2026-11-23   # um pregão: baixa, salva e roda as 6 verificações
+dicurve-backfill --pregoes 250        # últimos 250 pregões, pulando os já salvos
+pytest -m network                     # testes contra B3 e BCB
+```
+
 ## Documentação
 
 - [Design system](docs/01-design-system.md)
@@ -65,7 +73,7 @@ make check     # lint, tipos e testes
 
 ## Fontes de dados
 
-Os dados de mercado vêm de fontes públicas: B3 (ajustes do DI1), Banco Central (SGS) e ANBIMA (calendário de feriados). O repositório publica apenas métricas derivadas, com a fonte citada, e não redistribui os arquivos brutos.
+Os dados de mercado vêm de fontes públicas: B3 (ajustes do DI1), Banco Central (SGS) e ANBIMA (calendário de feriados). Os arquivos brutos não são versionados. Os termos da B3 restringem a publicação de dados de mercado e de dados derivados deles; por isso, a publicação dos números calculados com dados da B3 está desligada até uma decisão registrada no [plano](docs/07-plano-de-implementacao.md), seção 3.
 
 ## Aviso
 

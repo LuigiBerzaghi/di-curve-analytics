@@ -20,7 +20,7 @@ Projeto: terminal da curva DI (B3), risco de taxa, cenários e ALM. Plano em `do
 - Antes de commitar: `make check` (ruff, ruff format, mypy, pytest).
 
 ## Dados
-- Nunca versionar dados brutos da B3 (`data/raw/` está no .gitignore). Publicar só métricas derivadas, citando a fonte.
+- Nunca versionar dados brutos da B3 (`data/raw/` está no .gitignore). Nada calculado com dados da B3 vai para o repositório ou para o site até a decisão 5 do plano (termos da B3, seção 3).
 - Nenhum dado ou metodologia interna de instituição financeira. Carteira e balanço são simulados.
 - Usar "intradiário com atraso de 15 min", nunca "tempo real".
 

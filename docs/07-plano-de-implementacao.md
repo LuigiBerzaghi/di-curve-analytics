@@ -33,13 +33,17 @@
 |---|---|---|---|
 | Ajustes do DI1 (taxa e PU por vencimento) | B3 | Biblioteca **PYield** (`pip install pyield`), que busca os dados da B3; histórico desde 1991 | Plano B: página "Ajustes do pregão" da B3. Guardar cópia local de tudo que for baixado. |
 | DI1 intradiário | B3 via PYield | Dados com **atraso de 15 min** durante o pregão | Resolve a dúvida do "tempo real": vamos chamar de "intradiário com atraso", nunca de "tempo real". |
-| CDI e Selic meta | BCB SGS | `api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados?formato=json&dataInicial=…&dataFinal=…` · série 432 = Selic meta | Desde 26/03/2025 é obrigatório filtrar por data, com no máximo 10 anos por consulta. A rota de "últimos N valores" vai até 20. Confirmar o código da série do CDI ao implementar. |
+| CDI e Selic meta | BCB SGS | `api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados?formato=json&dataInicial=…&dataFinal=…` · série 432 = Selic meta | Desde 26/03/2025 é obrigatório filtrar por data, com no máximo 10 anos por consulta. A rota de "últimos N valores" vai até 20. CDI anualizado = série 4389 (Fase 2). |
 | Feriados / dias úteis | ANBIMA | Biblioteca **bizdays** (calendário ANBIMA) ou o módulo de dias úteis do PYield | Usar uma e validar contra a outra nos testes. |
 
-**Termos de uso da B3.** A página de dados da B3 diz que as informações são de propriedade dela e servem para consulta informativa, conforme os Termos e Condições de Uso. Antes de publicar:
-1. Ler os termos.
-2. Publicar apenas métricas derivadas (curva interpolada, forwards, risco), citando a fonte, em vez de redistribuir os arquivos brutos.
-3. Não versionar no repositório público os arquivos brutos da B3 (pasta `data/raw/` no `.gitignore`).
+**Termos de uso da B3 (lidos em 25/11/2026).** Resumo para orientar o projeto, não é parecer jurídico:
+1. [Termos do site](https://www.b3.com.br/pt_br/termos-de-uso-e-protecao-de-dados/termos-de-uso): os dados são para uso exclusivamente pessoal; reprodução, publicação ou distribuição do conteúdo depende de autorização prévia e por escrito da B3.
+2. [Política de Consumo de Market Data](https://www.b3.com.br/data/files/0D/97/1F/B7/4CCFF91094DCD8F9AC094EA8/Politica%20de%20Consumo%20de%20Market%20Data%20B3%20V1.1.pdf), item 3.3.2: dados de fim de dia e com atraso podem aparecer em gráficos e tabelas informacionais, mas não se pode permitir download. Em site aberto, o atraso cobre só alguns campos (último preço, preço de referência ou variação, mínima e máxima, volume, contratos em aberto).
+3. Mesma política, item 13 e Anexo I: criar taxas, índices ou "qualquer outro dado derivado" a partir desses dados exige consentimento da B3.
+
+O texto é o mesmo na [versão 1.2.1 de 2026](https://b3.com.br/data/files/75/95/28/D6/9D881A10F75B881AAC094EA8/Market%20Data%20B3%20Consumption%20Policy%20V1.2.1.pdf) (em inglês), que também não traz exceção para uso pessoal, educacional ou não comercial. Contato da B3 para contratação e licenças: contratacao@b3.com.br, (11) 2565-5080.
+
+**Consequência:** "publicar só métricas derivadas" não resolve, porque a política também cobre dado derivado. Até a decisão 5 (seção 11), nenhum JSON calculado com dados da B3 vai para o repositório público: o job diário coleta, verifica e monta os arquivos, mas a publicação fica desligada. Os arquivos brutos continuam fora do Git (`data/raw/` no `.gitignore`).
 
 ## 4. Princípio do projeto: motor próprio, validado contra referência
 
@@ -102,11 +106,11 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 ### Fase 1 — Motor de cálculo · ~15 h
 | Módulo | Conteúdo | Testes principais |
 |---|---|---|
-| `engine/calendar.py` | DU entre datas, próximo dia útil | Conferir 20 datas contra bizdays e PYield |
-| `engine/curve.py` | PU↔taxa, fator de desconto, flat-forward, vértices padrão | PU→taxa→PU idempotente; flat-forward passa exatamente pelos vértices; forwards constantes entre vencimentos |
+| `engine/calendario.py` | DU entre datas, próximo dia útil | Conferir 20 datas contra bizdays e PYield |
+| `engine/curva.py` | PU↔taxa, fator de desconto, flat-forward, vértices padrão | PU→taxa→PU idempotente; flat-forward passa exatamente pelos vértices; forwards constantes entre vencimentos |
 | `engine/forwards.py` | Forwards entre vencimentos, spreads | Forward de dois pontos reconstrói a taxa longa |
-| `engine/risk.py` | DV01, key rate, duration, convexidade, reprecificação exata | DV01 numérico (bump de 1 bp) ≈ analítico; soma dos key rates ≈ DV01 paralelo |
-| `engine/scenarios.py` | Paralelo, inclinação, macro, personalizado | Choque zero → ΔPV zero; simetria aproximada para choques pequenos |
+| `engine/risco.py` | DV01, key rate, duration, convexidade, reprecificação exata | DV01 numérico (bump de 1 bp) ≈ analítico; soma dos key rates ≈ DV01 paralelo |
+| `engine/cenarios.py` | Paralelo, inclinação, macro, personalizado | Choque zero → ΔPV zero; simetria aproximada para choques pequenos |
 | `engine/alm.py` | Gap, ΔEVE, ΔNII, duration gap | Balanço casado → ΔEVE ≈ 0 |
 - Incluir casos de PU conferidos à mão como testes.
 - **Pronto quando:** todos os testes passam e o motor bate com as referências externas (PYield e calendário ANBIMA do bizdays).
@@ -114,12 +118,13 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 ### Fase 2 — Dados reais · ~10 h
 - `ingest/b3_di1.py`: ajustes do dia e backfill de 250 pregões.
 - `ingest/bcb.py`: CDI e Selic com filtro de datas (limite de 10 anos por consulta).
-- `qa/checks.py`: as 6 verificações da aba de metodologia, com um relatório por dia.
+- `qa/verificacoes.py`: as 6 verificações da aba de metodologia, com um relatório por dia.
 - Armazenamento em Parquet particionado por data, com os brutos fora do Git.
 - **Pronto quando:** a curva de 3 datas escolhidas bate com a B3 dentro de R$ 0,01 no PU.
 
 ### Fase 3 — Job diário e API estática · ~6 h
-- `build/api.py` gera os JSON do contrato de dados.
+- `publish/api.py` gera os JSON do contrato de dados.
+- A publicação depende da decisão 5 (termos da B3); enquanto isso, o job roda com a publicação desligada.
 - Workflow agendado após o fechamento, para rodar sozinho todo dia útil.
 - Se a coleta ou o QA falhar, o job **não** publica e mantém o último dia bom.
 - **Pronto quando:** o job roda 5 dias úteis seguidos sem intervenção.
@@ -138,6 +143,7 @@ Estimativas em horas de trabalho focado, com apoio do Claude Code na escrita do 
 - **Pronto quando:** as 21 telas do design estão implementadas.
 
 ### Fase 6 — Intradiário com atraso · ~8 h
+- Depende da decisão 5: a B3 tem regras próprias para distribuir dados com atraso em site aberto.
 - Coleta a cada 15–30 min durante o pregão, mostrando "atualizado às hh:mm · atraso de 15 min".
 - Ticker e curva do dia contra o fechamento anterior.
 - **Pronto quando:** funciona por um pregão inteiro sem falhar.
@@ -174,12 +180,14 @@ Cada fase termina com uma entrega visível: um teste passando, um gráfico com d
 
 Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está considerado no "~".
 
+**Andamento real:** as Fases 0 a 2 ficaram prontas em 24/11/2026, antes do início previsto. As semanas acima valem como teto para as fases seguintes.
+
 ## 9. Riscos
 
 | Risco | Impacto | Mitigação |
 |---|---|---|
 | B3 muda o formato ou a página e a coleta quebra | Site desatualizado | PYield como camada; cache local; QA bloqueia a publicação; alerta por e-mail quando o job falha |
-| Termos de uso da B3 restringem a publicação | Ter que tirar dados do ar | Ler os termos na Fase 2; publicar só métricas derivadas, com a fonte citada |
+| Termos de uso da B3 restringem a publicação | Ter que tirar dados do ar | Termos lidos em 25/11/2026 (seção 3): restringem publicação, download e dado derivado. Publicação desligada até a decisão 5 |
 | Erro de cálculo passa despercebido | Credibilidade com quem é da área | Testes contra PYield e B3; testes de propriedade; casos de PU conferidos à mão |
 | Agendamento do GitHub Actions atrasa | Atualização atrasa alguns minutos | Aceitável no fechamento; no intradiário, mostrar a hora real da coleta |
 | 3D pesado no celular | Site lento | Versão 2D como alternativa no mobile; carregar o Three.js só nas telas que usam |
@@ -201,6 +209,7 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 | 2 | Repositório público ou privado | ✅ Público desde o primeiro commit |
 | 3 | Nome do repositório e domínio | Proposta: `di-curve-analytics` no GitHub Pages |
 | 4 | Hospedagem do frontend | Proposta: GitHub Pages; Vercel se precisar de algo dinâmico depois |
+| 5 | Publicação de dados da B3 | 🔄 Escolhido em 25/11/2026: pedir autorização por escrito à B3 (contratacao@b3.com.br). Até a resposta, o site é desenvolvido com dados só na máquina local e nada é publicado. Plano B: curva pré com dados abertos do Tesouro |
 
 ## 12. Status
 
@@ -208,8 +217,9 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 |---|---|
 | Design (21 telas, design system, metodologia) | ✅ Concluída |
 | 0 — Fundação | ✅ Concluída (PR #2) |
-| 1 — Motor de cálculo | 🔄 Em revisão (PR da fase 1) |
-| 2 a 7 | — |
+| 1 — Motor de cálculo | ✅ Concluída (PR #3) |
+| 2 — Dados reais | 🔄 Em revisão (PR da fase 2). 250 pregões baixados e verificados: 0 reprovados, 0 divergências de DU, PU a até R$ 0,005 da B3 |
+| 3 a 7 | — |
 
 ## Fontes
 - PYield (coleta B3/ANBIMA/BCB, intradiário com 15 min de atraso): https://pypi.org/project/PYield

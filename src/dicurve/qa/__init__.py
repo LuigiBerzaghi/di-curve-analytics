@@ -1,1 +1,1 @@
-"""Verificações de qualidade dos dados. Implementadas na Fase 2."""
+"""Verificações de qualidade dos dados (ver ``verificacoes``)."""

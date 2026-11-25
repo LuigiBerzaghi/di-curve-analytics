@@ -1,7 +1,7 @@
 .PHONY: install lint format types test check
 
 install:
-	pip install -e ".[dev]"
+	pip install -e ".[dev,data]"
 	pre-commit install
 
 lint:

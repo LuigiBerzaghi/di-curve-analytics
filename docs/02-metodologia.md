@@ -88,18 +88,24 @@ O balanço é agregado em 5 faixas (≤3M, 3–12M, 1–2A, 2–5A, >5A), cada u
 
 ## Verificações de qualidade (a cada fechamento)
 
-| Verificação | Regra |
-|---|---|
-| Vértices completos | Todos os vencimentos com ajuste |
-| Banda de taxa | Entre 2% e 30% a.a. |
-| Variação diária | Sinalizar acima de 25 bps |
-| Dias úteis | Calendário de feriados aplicado |
-| PU recalculado | Diferença de até R$ 0,01 do divulgado |
-| Sem arbitragem | Todas as forwards positivas |
+| Verificação | Regra | Gravidade |
+|---|---|---|
+| Vértices completos | Todos os vencimentos com taxa e PU de ajuste | erro |
+| Banda de taxa | Entre 2% e 30% a.a. | erro |
+| Variação diária | Sinalizar acima de 50 bps contra o pregão anterior | alerta |
+| Dias úteis | DU e vencimento do nosso calendário iguais aos da B3 | erro |
+| PU recalculado | PU do motor a até R$ 0,01 do PU de ajuste da B3 | erro |
+| Sem arbitragem | Todas as forwards entre vencimentos positivas | erro |
+
+Um **erro** bloqueia a publicação do dia; um **alerta** só fica registrado. Variação grande quase sempre é mercado, não dado errado: nos 250 pregões de 18/11/2025 a 23/11/2026 houve 4 dias acima de 50 bps, todos movimentos da curva inteira (o maior, +265 bps em 26/10/2026). Com o limite antigo de 25 bps seriam 27 alertas, um a cada nove pregões.
+
+**Dias sem pregão.** A B3 não abre em 24/12 e 31/12, mas esses dias contam como dia útil no calendário ANBIMA. A coleta pula esses dias; a contagem de DU continua a mesma.
+
+**Resultado nos 250 pregões:** 11.157 contratos-dia, 0 divergências de DU ou vencimento, diferença máxima de PU de R$ 0,005.
 
 ## Premissas e limitações
 
-1. Nesta versão, cotações, carteira e balanço são ilustrativos.
+1. A curva usa os ajustes reais da B3; a carteira e o balanço são simulados.
 2. Choques são instantâneos: sem rebalanceamento, carrego ou passagem de tempo.
 3. O balanço de ALM é agregado por faixa e cada faixa é tratada no ponto médio.
 4. Sem risco de base, spread de crédito ou opcionalidade (pré-pagamento, resgate).

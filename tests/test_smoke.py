@@ -1,12 +1,13 @@
 """Testes de fumaça da Fase 0: o pacote instala, importa e expõe as convenções básicas."""
 
 import importlib
+import importlib.metadata
 
 import dicurve
 
 
-def test_versao_definida() -> None:
-    assert dicurve.__version__ == "0.0.1"
+def test_versao_igual_a_do_pyproject() -> None:
+    assert dicurve.__version__ == importlib.metadata.version("di-curve-analytics")
 
 
 def test_convencoes_de_mercado() -> None:

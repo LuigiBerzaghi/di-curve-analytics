@@ -1,0 +1,28 @@
+name: Dados reais
+
+# Roda os testes marcados com @pytest.mark.network contra B3 e BCB.
+# Não bloqueia PRs: fontes externas podem estar fora do ar.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 12 * * 1"  # segundas, 09:17 em Brasília
+
+permissions:
+  contents: read
+
+jobs:
+  rede:
+    name: B3 e BCB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Instalar
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,data]"
+      - name: Pytest (rede)
+        run: pytest -m network -v
