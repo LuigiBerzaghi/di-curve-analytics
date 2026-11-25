@@ -18,6 +18,7 @@ dependencies = [
 [project.scripts]
 dicurve-atualizar = "dicurve.ingest.atualizar:main"
 dicurve-backfill = "dicurve.ingest.backfill:main"
+dicurve-publicar = "dicurve.publish.api:main"
 
 [project.optional-dependencies]
 data = [

@@ -106,6 +106,7 @@ Um **erro** bloqueia a publicação do dia; um **alerta** só fica registrado. V
 ## Premissas e limitações
 
 1. A curva usa os ajustes reais da B3; a carteira e o balanço são simulados.
+   A carteira tem 10 posições por prazo constante (3M a 12A, de −80 a +210 R$ mi), reprecificadas todo dia na curva do dia; o balanço tem R$ 224 bi em ativos sensíveis em 5 faixas (`dicurve/simulado.py`).
 2. Choques são instantâneos: sem rebalanceamento, carrego ou passagem de tempo.
 3. O balanço de ALM é agregado por faixa e cada faixa é tratada no ponto médio.
 4. Sem risco de base, spread de crédito ou opcionalidade (pré-pagamento, resgate).
