@@ -230,7 +230,7 @@ Fim de ano e Carnaval devem atrasar uma ou duas semanas. Esse atraso já está c
 | 0 — Fundação | ✅ Concluída (PR #2) |
 | 1 — Motor de cálculo | ✅ Concluída (PR #3) |
 | 2 — Dados reais | ✅ Concluída (PR #4). 250 pregões baixados e verificados: 0 reprovados, 0 divergências de DU, PU a até R$ 0,005 da B3 |
-| 3 — Job diário e API estática | 🔄 Em revisão (PR da fase 3b). Fonte trocada para dados abertos do BCB: LTN, NTN-F e CDI, curva por bootstrapping; 496 dias verificados sem reprovação. O job começa a contar os 5 dias úteis depois do merge na main |
+| 3 — Job diário e API estática | 🔄 Em revisão (PRs #5 e #6). Fonte trocada para dados abertos do BCB: LTN, NTN-F e CDI, curva por bootstrapping; 496 dias verificados sem reprovação. O job começa a contar os 5 dias úteis depois do merge na main |
 | 4 a 7 | — |
 
 ## Fontes
